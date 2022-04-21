@@ -1,0 +1,62 @@
+[
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "/home/nunu/.arduino15/packages/rp2040/hardware/rp2040/1.13.0/cores/rp2040"
+  },
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "/home/nunu/.arduino15/packages/rp2040/hardware/rp2040/1.13.0/variants/rpipico"
+  },
+  {
+    "Sourcefile": "/home/nunu/Arduino/scdtr_final_pedro/build/sketch/scdtr_final_pedro.ino.cpp",
+    "Include": "Embedded_Template_Library.h",
+    "Includepath": "/home/nunu/Arduino/libraries/Embedded_Template_Library_ETL/src"
+  },
+  {
+    "Sourcefile": "/home/nunu/Arduino/scdtr_final_pedro/build/sketch/scdtr_final_pedro.ino.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/home/nunu/Arduino/scdtr_final_pedro/build/sketch/calibrations.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/home/nunu/Arduino/scdtr_final_pedro/build/sketch/comms.cpp",
+    "Include": "Wire.h",
+    "Includepath": "/home/nunu/.arduino15/packages/rp2040/hardware/rp2040/1.13.0/libraries/Wire/src"
+  },
+  {
+    "Sourcefile": "/home/nunu/Arduino/scdtr_final_pedro/build/sketch/comms.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/home/nunu/Arduino/scdtr_final_pedro/build/sketch/gvars.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/home/nunu/Arduino/scdtr_final_pedro/build/sketch/msg_queue.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/home/nunu/Arduino/scdtr_final_pedro/build/sketch/system.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/home/nunu/Arduino/scdtr_final_pedro/build/sketch/utils.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/home/nunu/.arduino15/packages/rp2040/hardware/rp2040/1.13.0/libraries/Wire/src/Wire.cpp",
+    "Include": "",
+    "Includepath": null
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "additionalFiles": "..,..,..,..,..,..,..,..,..,..,..,..,..,..,..",
+  "builtInLibrariesFolders": "",
+  "builtInToolsFolders": "/usr/share/arduino/tools-builder,/home/nunu/.arduino15/packages",
+  "compiler.optimization_flags": "",
+  "customBuildProperties": "build.path=/home/nunu/Arduino/scdtr_final_pedro/build,build.warn_data_percentage=75,runtime.tools.pqt-openocd.path=/home/nunu/.arduino15/packages/rp2040/tools/pqt-openocd/1.3.3-a-ed6d983,runtime.tools.pqt-openocd-1.3.3-a-ed6d983.path=/home/nunu/.arduino15/packages/rp2040/tools/pqt-openocd/1.3.3-a-ed6d983,runtime.tools.pqt-python3.path=/home/nunu/.arduino15/packages/rp2040/tools/pqt-python3/1.0.1-base-3a57aed,runtime.tools.pqt-python3-1.0.1-base-3a57aed.path=/home/nunu/.arduino15/packages/rp2040/tools/pqt-python3/1.0.1-base-3a57aed,runtime.tools.pqt-elf2uf2.path=/home/nunu/.arduino15/packages/rp2040/tools/pqt-elf2uf2/1.3.3-a-ed6d983,runtime.tools.pqt-elf2uf2-1.3.3-a-ed6d983.path=/home/nunu/.arduino15/packages/rp2040/tools/pqt-elf2uf2/1.3.3-a-ed6d983,runtime.tools.pqt-gcc.path=/home/nunu/.arduino15/packages/rp2040/tools/pqt-gcc/1.3.3-a-ed6d983,runtime.tools.pqt-gcc-1.3.3-a-ed6d983.path=/home/nunu/.arduino15/packages/rp2040/tools/pqt-gcc/1.3.3-a-ed6d983,runtime.tools.pqt-mklittlefs.path=/home/nunu/.arduino15/packages/rp2040/tools/pqt-mklittlefs/1.3.3-a-ed6d983,runtime.tools.pqt-mklittlefs-1.3.3-a-ed6d983.path=/home/nunu/.arduino15/packages/rp2040/tools/pqt-mklittlefs/1.3.3-a-ed6d983,runtime.tools.pqt-pioasm.path=/home/nunu/.arduino15/packages/rp2040/tools/pqt-pioasm/1.3.3-a-ed6d983,runtime.tools.pqt-pioasm-1.3.3-a-ed6d983.path=/home/nunu/.arduino15/packages/rp2040/tools/pqt-pioasm/1.3.3-a-ed6d983",
+  "fqbn": "rp2040:rp2040:rpipico:flash=2097152_0,freq=125,opt=Small,rtti=Disabled,dbgport=Disabled,dbglvl=None,usbstack=picosdk",
+  "hardwareFolders": "/usr/share/arduino/hardware,/home/nunu/.arduino15/packages",
+  "otherLibrariesFolders": "/home/nunu/Arduino/libraries",
+  "runtime.ide.version": "10819",
+  "sketchLocation": "/home/nunu/Arduino/scdtr_final_pedro/scdtr_final_pedro.ino"
+}
