@@ -77,7 +77,6 @@ float k11 = 2, k12 = 0.5, k13 = 0.5, k21 = 0.5, k22 = 2, k23 = 0.5, k31 = 0.5, k
 Vector3f K1(k11, k12, k13); 
 Vector3f K2(k21, k22, k23); 
 Vector3f K3(k31, k32, k33); 
-bool first = true;
 
 void loop() {
   //wake up
