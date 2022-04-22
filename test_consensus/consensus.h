@@ -7,7 +7,7 @@
 using Eigen::Vector3f;
 
 class cons {
-  private:
+  public:
     int idx;
     float rho, max_iter;
 
@@ -17,13 +17,14 @@ class cons {
     Vector3f d, d_av, y, c;
     float norm, sqr_diff;
 
-    auto iter_cons();
     bool check_feasibility(Vector3f _d);
     float evaluate_cost(Vector3f _d);
 
-  public:  
+    Vector3f my_d_best;
+    float my_cost_best;
+    
     cons(float rho = 1, float max_iter = 5, int idx = 0);
-    auto calc_cons(float L, float o, float cost, Vector3f K); 
+    void iter_cons(float L, float o, Vector3f c, Vector3f K); 
 };
 
 #endif

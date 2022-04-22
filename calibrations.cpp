@@ -101,7 +101,7 @@ void measure_handler(uint8_t id) {
     else
     {
         high_point = adc_to_lux(sum) / N_MEASURES_CAL;
-        gain[index_of(my_id, node_id, N_NODES)] = (high_point - low_point) / (DC_CAL_HIGH - DC_CAL_LOW);
+        gain[index_of(id, node_id, N_NODES)] = (high_point - low_point) / (DC_CAL_HIGH - DC_CAL_LOW);
         low_point = 0;
     }
     

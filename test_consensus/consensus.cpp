@@ -15,7 +15,8 @@ cons::cons(float _rho, float _max_iter, int _idx){
   norm = 0; sqr_diff = 0;
 }
 
-auto cons::iter_cons() {
+
+void cons::iter_cons(float L, float o, Vector3f c, Vector3f K) {
   //initialization
   Vector3f d_best(-1,-1,-1); 
   float cost_best = 1000000;
@@ -104,11 +105,10 @@ auto cons::iter_cons() {
           cost_best = cost_linear_100;
       }
     }
-
   }
       
-  struct r {Vector3f d_; float cost_;};
-  return r {d_best, cost_best};
+  my_d_best = d_best;
+  my_cost_best = cost_best;
 }
 
 
@@ -126,37 +126,4 @@ float cons::evaluate_cost(Vector3f _d){
   float y1 = y.transpose()*_d;
   float y2 = y.transpose()*d_av;
   return c.transpose()*_d + y1 - y2 + rho/2*pow((_d - d_av).norm(),2); 
-}
-
-
-auto cons::calc_cons(float _LL, float _o, float cost, Vector3f _K){
-  //initialization
-  L = _LL;
-  o = _o;
-  c(idx) = cost;
-  Vector3f K = _K;
-  norm = pow(K.norm(),2);
-  sqr_diff = norm - pow(K(idx),2);
-
-  //iterate until max_iter. Note: first iteration is the initial conditions
-  for(int i = 1; i < max_iter; i++){
-    //compute primal solutions
-    auto [d_best, cost_best] = iter_cons();
-
-    d = d_best;
-    
-    //NODES EXCHAGE THEIR SOLUTIONS
-    //(COMMUNICATIONS HERE)
-
-    Vector3f d2(2,2,2); //subtituir pela solução dos nós
-    Vector3f d3(3,3,3);
-
-    d_av = (d + d2 + d3)/3;
-
-    //COMPUTATION OF THE LAGRANGIAN UPDATES
-    y = y + rho*(d - d_av);
-  }
-  float l = K.transpose()*d + o;
-  struct r {Vector3f d_; float l_;};
-  return r {d, l};
 }

@@ -7,5 +7,5 @@ Carrilho: 97
 A: d45 h2D b0101101 a-
 B: d56 h38 b0111000 a8
 C: d68 h44 b1000100 aD
-Maia: d61 h b0111101 a=
+Maia: d61 h3D b0111101 a=
 Carrilho: d97 h61 b1100001 aa

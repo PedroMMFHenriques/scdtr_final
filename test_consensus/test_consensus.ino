@@ -19,9 +19,9 @@ char buff[100];
 float gain[3];
 
 //////////////////////////////////////////////
-//ATENÇÃO!!!! d de 0 a 100
-float rho = 1;
-int max_iter = 5;
+//ATENÇÃO!!!! d de 0 a 100!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+float rho = 0.07;
+int max_iter = 20;
 /////////////////////////////////////////////
 
 
@@ -36,10 +36,10 @@ void req_handler() {
 void setup() {
   Serial.begin(115200);
 
-
+  while(!Serial);
   //I2C 0 is master, I2C 1 is slave
   Wire.setSDA(4); Wire.setSCL(5); 
-  Wire1.setSDA(6);Wire1.setSCL(7); 
+  Wire1.setSDA(6); Wire1.setSCL(7); 
   
   Wire.setClock(frequency);
   Wire1.setClock(frequency);
@@ -58,22 +58,80 @@ void setup() {
   Wire1.onRequest(req_handler) ;
 
   delay(3000);
+  
+
 }
 
-float c = 1;
-float k11 = 2, k12 = 0.5, k13 = 0.5;
-Vector3f K(k11, k12, k13); 
+//EXPERIMENTAL CASES
+float L1 = 150, o1 = 30, L2 = 80, o2 = 0, L3 = 80, o3 = 0;
+//L1 = 80; o1 = 50; L2 = 150; o2 = 50;
+//L1 = 80; o1 = 50; L2 = 270; o2 = 50;
+
+//COST FUNCTION PARAMETERS
+float c1 = 1, c2 = 1,  c3 = 1;
+//c1 = 1; c2 = 3;
+
+//SYSTEM CALIBRATION PARAMETERS
+float k11 = 2, k12 = 0.5, k13 = 0.5, k21 = 0.5, k22 = 2, k23 = 0.5, k31 = 0.5, k32 = 0.5, k33 = 2;
+
+Vector3f K1(k11, k12, k13); 
+Vector3f K2(k21, k22, k23); 
+Vector3f K3(k31, k32, k33); 
+bool first = true;
 
 void loop() {
-
   //wake up
   int idx = 0; //A SUA POSIÇÃO NO VETOR DE NÓS ORDENADO
-  cons node(rho, max_iter, idx);
+  cons node1(rho, max_iter, 0);
+  cons node2(rho, max_iter, 1);
+  cons node3(rho, max_iter, 2);
   //calibrate
 
-  float L = 150, o = 30;
-  Serial.println(node.calc_cons(L, o, c, K));
-  
-  delay(2000);
+  node1.K = K1; 
+  node1.norm = pow(node1.K.norm(),2);
+  node1.sqr_diff = node1.norm - pow(node1.K(idx),2);
+  node1.c(node1.idx) = c1;
+  node1.o = o1;
+  node1.L = L1;
+
+  node2.K = K2; 
+  node2.norm = pow(node2.K.norm(),2);
+  node2.sqr_diff = node2.norm - pow(node2.K(idx),2);
+  node2.c(node2.idx) = c2;
+  node2.o = o2;
+  node2.L = L2;
+
+  node3.K = K3; 
+  node3.norm = pow(node3.K.norm(),2);
+  node3.sqr_diff = node3.norm - pow(node3.K(idx),2);
+  node3.c(node3.idx) = c3;
+  node3.o = o3;
+  node3.L = L3;
+
+  for(int i = 1; i < max_iter; i++){
+    //compute primal solutions
+    node1.iter_cons(node1.L, node1.o, node1.c, node1.K);
+    node1.d = node1.my_d_best;
+
+    node2.iter_cons(node2.L, node2.o, node2.c, node2.K);
+    node2.d = node2.my_d_best;
+
+    node3.iter_cons(node3.L, node3.o, node3.c, node3.K);
+    node3.d = node3.my_d_best;
+
+    node1.d_av = (node1.d + node2.d + node3.d)/3;
+    node2.d_av = (node1.d + node2.d + node3.d)/3;
+    node3.d_av = (node1.d + node2.d + node3.d)/3;
+
+    //COMPUTATION OF THE LAGRANGIAN UPDATES
+    node1.y = node1.y + rho*(node1.d - node1.d_av);
+    node2.y = node2.y + rho*(node2.d - node2.d_av);
+    node3.y = node3.y + rho*(node3.d - node3.d_av);
+  }
+
+  float l1 = node1.K.transpose()*node1.d + node1.o, l2 = node2.K.transpose()*node2.d + node2.o, l3 = node3.K.transpose()*node3.d + node3.o;
+
+  Serial.printf("Solutions: d = %f %f %f ; l = %f %f %f\n", node1.d_av[0], node1.d_av[1], node1.d_av[2], l1, l2, l3);
+  delay(1000);
 
 }
