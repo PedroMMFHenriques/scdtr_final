@@ -21,7 +21,7 @@ float gain[3];
 //////////////////////////////////////////////
 //ATENÇÃO!!!! d de 0 a 100!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 float rho = 0.07;
-int max_iter = 20;
+int max_iter = 50;
 /////////////////////////////////////////////
 
 
@@ -63,13 +63,10 @@ void setup() {
 }
 
 //EXPERIMENTAL CASES
-float L1 = 150, o1 = 30, L2 = 80, o2 = 0, L3 = 80, o3 = 0;
-//L1 = 80; o1 = 50; L2 = 150; o2 = 50;
-//L1 = 80; o1 = 50; L2 = 270; o2 = 50;
+float L1 = 15, o1 = 3, L2 = 8, o2 = 5, L3 = 25, o3 = 4;
 
 //COST FUNCTION PARAMETERS
 float c1 = 1, c2 = 1,  c3 = 1;
-//c1 = 1; c2 = 3;
 
 //SYSTEM CALIBRATION PARAMETERS
 float k11 = 2, k12 = 0.5, k13 = 0.5, k21 = 0.5, k22 = 2, k23 = 0.5, k31 = 0.5, k32 = 0.5, k33 = 2;
@@ -80,7 +77,6 @@ Vector3f K3(k31, k32, k33);
 
 void loop() {
   //wake up
-  int idx = 0; //A SUA POSIÇÃO NO VETOR DE NÓS ORDENADO
   cons node1(rho, max_iter, 0);
   cons node2(rho, max_iter, 1);
   cons node3(rho, max_iter, 2);
@@ -88,21 +84,21 @@ void loop() {
 
   node1.K = K1; 
   node1.norm = pow(node1.K.norm(),2);
-  node1.sqr_diff = node1.norm - pow(node1.K(idx),2);
+  node1.sqr_diff = node1.norm - pow(node1.K(node1.idx),2);
   node1.c(node1.idx) = c1;
   node1.o = o1;
   node1.L = L1;
 
   node2.K = K2; 
   node2.norm = pow(node2.K.norm(),2);
-  node2.sqr_diff = node2.norm - pow(node2.K(idx),2);
+  node2.sqr_diff = node2.norm - pow(node2.K(node2.idx),2);
   node2.c(node2.idx) = c2;
   node2.o = o2;
   node2.L = L2;
 
   node3.K = K3; 
   node3.norm = pow(node3.K.norm(),2);
-  node3.sqr_diff = node3.norm - pow(node3.K(idx),2);
+  node3.sqr_diff = node3.norm - pow(node3.K(node3.idx),2);
   node3.c(node3.idx) = c3;
   node3.o = o3;
   node3.L = L3;
