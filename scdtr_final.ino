@@ -7,6 +7,7 @@
 #include "gvars.h"
 #include "utils.h"
 #include "msg_queue.h"
+#include "consensus.h"
 
 struct repeating_timer timer;
 volatile uint32_t timer_time {0};
@@ -57,6 +58,11 @@ void loop() {
         if (node_count == N_NODES) {
             node_discovery();
             sort3(node_id);
+
+            float idx = index_of(my_id, node_id, N_NODES);
+            Eigen::Vector3f K(gain[0],gain[1],gain[2]);
+            node.init_cons(idx, external_illumination, cost[idx], K);
+            
             state = waiting_callibration;
             calibrate_external_illum();
         }
@@ -113,7 +119,72 @@ void loop() {
         Serial.printf("Gains: %f %f %f\n\n\n", gain[0], gain[1], gain[2]);
 
         delay(1000);
+
+        ////////////////////////////////////////
+        // User muda a referência ou occupancy
+        float L;
+        switch (my_id)
+        {
+        case 45:
+            L = 20;
+            break;
+
+        case 61:
+            L = 10;
+            break;
+
+        case 97:
+            L = 15;
+            break;
+        
+        default:
+            Serial.println("oopsie");
+            break;
+        }
+        bool ref_change = true;
+        ////////////////////////////////////////
+
+        if(ref_change){
+            ref_change = false;
+
+            node.new_ref(L);
+            iter_num = 0;
+            state = consensus_calc;
+        }
+
         break;
+
+
+    case consensus_calc:
+        Serial.printf("Calculating consensus...\n");
+        if(iter_num == MAX_ITER){
+            Serial.printf("Consensus DONE...\n");
+            //guardar resultados node.d_av[node.idx]  node.K.transpose()*node.d + node.o
+            [d_sol, l_sol] = node.get_results();
+            
+            state = normal;
+            break;
+        }
+
+        //fazer send no fim do iter_cons???????????? ou + 1 função?
+        node.iter_cons();
+        iter_num++;
+        
+        cons_ack_count = 0;
+
+        state = consensus_wait;        
+        break;
+    
+    case consensus_wait:
+        Serial.printf("Waiting consensus...\n");
+        if (cons_ack_count == N_NODES) {
+            Vector3f d_av(dc[0], dc[1], dc[2]);
+            node.update_cons(d_av);
+
+            state = consensus_calc;
+        }
+        break;
+
 
     default:
         break;

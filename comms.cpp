@@ -6,6 +6,7 @@
 #include "settings.h"
 #include "utils.h"
 #include "calibrations.h"
+#include "consensus.h"
 #include "protocol.h"
 #include "msg_queue.h"
 
@@ -17,6 +18,7 @@ void measure_msg_handler(uint8_t id);
 void calibrate_msg_handler();
 void cal_done_msg_handler();
 void cal_ack_msg_handler();
+void cons_msg_handler();
 
 
 
@@ -117,10 +119,14 @@ void msg_handler_parser(uint8_t *msg, int len) {
     case MEASURE_ACK:
         cal_ack_msg_handler();
         break;
+    case CONSENSUS_SOLUTION:
+        cons_msg_handler(msg[0], msg[3]);
+        break;
     default:
         break;
     }
 }
+
 
 void wakeup_msg_handler(uint8_t id) {
     bool new_id = true;
@@ -136,23 +142,31 @@ void wakeup_msg_handler(uint8_t id) {
     if(new_id) node_id[node_count++] = id;
 }
 
+
 void measure_msg_handler(uint8_t id) {
     
     measure_handler(id);
 }
+
 
 void calibrate_msg_handler() {
     
     calibrate_now = true;
 }
 
+
 void cal_done_msg_handler() {
     
     calibrate_all_done = true;
 }
 
+
 void cal_ack_msg_handler() {
-    
-    Serial.printf("recebi ack!!\n");
     cal_ack_count++;
+}
+
+
+void cons_msg_handler(uint8_t id, float dc) {
+    cons_ack_count++;
+    cons_handler()
 }

@@ -38,6 +38,10 @@
 
 #define MSG_QUEUE_SIZE 10
 
+//consensus parameters
+#define MAX_ITER 20
+#define RHO 0.07
+
 //in ms
 #define TIMESTEP 10
 

@@ -9,5 +9,4 @@
 #define CALIBRATE 'C'
 #define DONE_CALIBRATE 'D'
 #define MEASURE_ACK 'm'
-
-
+#define CONSENSUS_SOLUTION 'S'
