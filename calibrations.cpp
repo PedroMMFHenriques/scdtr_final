@@ -87,6 +87,7 @@ void calibrate_gains_finish() {
 void measure_handler(uint8_t id) {
     static float low_point = 0;
     float high_point;
+    int avg;
     int sum = 0;
     
     for (int i = 0; i < N_MEASURES_CAL; i++)
@@ -96,11 +97,13 @@ void measure_handler(uint8_t id) {
 
     if (!low_point)
     {
-        low_point = adc_to_lux(sum) / N_MEASURES_CAL;
+        avg = sum /  N_MEASURES_CAL;
+        low_point = adc_to_lux(avg);
     }
     else
-    {
-        high_point = adc_to_lux(sum) / N_MEASURES_CAL;
+    { 
+        avg = sum / N_MEASURES_CAL;
+        high_point = adc_to_lux(avg);
         gain[index_of(id, node_id, N_NODES)] = (high_point - low_point) / (DC_CAL_HIGH - DC_CAL_LOW);
         low_point = 0;
     }
