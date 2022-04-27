@@ -451,7 +451,7 @@ void cmd_U(char *i_str, char *val_str) {
         Serial.println("err");
         return;
     }
-    i2c_cmd_float_send(node_id[i], CMD_O, val);
+    i2c_cmd_float_send(node_id[i], CMD_U, val);
     return;
 }
 

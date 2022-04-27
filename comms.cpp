@@ -253,15 +253,15 @@ void msg_handler_parser(uint8_t *msg, int len) {
         break;  
     case CMD_O:
         val = byte_array_to_float(&msg[3]);
-        msg_d(msg[0], val);
+        msg_O(msg[0], val);
         break;
     case CMD_U:
         val = byte_array_to_float(&msg[3]);
-        msg_d(msg[0], val);
+        msg_U(msg[0], val);
         break;
     case CMD_c:
         val = byte_array_to_float(&msg[3]);
-        msg_d(msg[0], val);
+        msg_c(msg[0], val);
         break;
     case CMD_R:
         msg_R();
@@ -288,25 +288,26 @@ void msg_handler_parser(uint8_t *msg, int len) {
         r_msg_o(msg[0]);
         break;
     case R_CMD_go:
-        r_msg_go(msg[0], val);
+        Serial.printf("msg[3]] = %d\n", msg[3]);
+        r_msg_go(msg[0], msg[3]);
         break;
     case R_CMD_a:
         r_msg_a(msg[0]);
         break;
     case R_CMD_ga:
-        r_msg_ga(msg[0], val);
+        r_msg_ga(msg[0], msg[3]);
         break;
     case R_CMD_w:
         r_msg_w(msg[0]);
         break;
     case R_CMD_gw:
-        r_msg_gw(msg[0], val);
+        r_msg_gw(msg[0], msg[3]);
         break;
     case R_CMD_b:
         r_msg_b(msg[0]);
         break;
     case R_CMD_gb:
-        r_msg_gb(msg[0], val);
+        r_msg_gb(msg[0], msg[3]);
         break;
     case R_CMD_gx:
         val = byte_array_to_float(&msg[3]);

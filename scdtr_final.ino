@@ -7,6 +7,7 @@
 #include "gvars.h"
 #include "utils.h"
 #include "msg_queue.h"
+#include "cli.h"
 
 struct repeating_timer timer;
 volatile uint32_t timer_time {0};
@@ -99,20 +100,17 @@ void loop() {
         delay(1);
         if (calibrate_all_done) {
             state = normal;
+            Serial.printf("Initialization done!\n");
+            Serial.printf("My ID: %X\n", my_id);
+            Serial.printf("IDs: %X %X %X \n", node_id[0], node_id[1], node_id[2]);
+            Serial.printf("External Ilumination: %f\n", external_illumination);
+            Serial.printf("Gains: %f %f %f\n\n\n", gain[0], gain[1], gain[2]);
         }
         break;
 
 
     case normal:
-        Serial.printf("My ID: %X\n", my_id);
-
-        Serial.printf("IDs: %X %X %X \n", node_id[0], node_id[1], node_id[2]);
-
-        Serial.printf("External Ilumination: %f\n", external_illumination);
-
-        Serial.printf("Gains: %f %f %f\n\n\n", gain[0], gain[1], gain[2]);
-
-        delay(1000);
+        cli();
         break;
 
     default:

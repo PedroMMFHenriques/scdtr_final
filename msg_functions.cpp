@@ -38,7 +38,8 @@ void msg_o(uint8_t sender_id, uint8_t val) {
 
 void msg_go(uint8_t sender_id) {
     uint8_t occ_byte = occupancy ? 1 : 0;
-    i2c_cmd_float_send(sender_id, R_CMD_go, occ_byte);
+    Serial.printf("msg go = %d\n", occ_byte);
+    i2c_cmd_byte_send(sender_id, R_CMD_go, occ_byte);
 }
 
 void msg_a(uint8_t sender_id, uint8_t val) {
@@ -48,7 +49,7 @@ void msg_a(uint8_t sender_id, uint8_t val) {
 
 void msg_ga(uint8_t sender_id) {
     uint8_t aw_byte = anti_windup_enabled ? 1 : 0;
-    i2c_cmd_float_send(sender_id, R_CMD_ga, aw_byte);
+    i2c_cmd_byte_send(sender_id, R_CMD_ga, aw_byte);
 }
 
 void msg_w(uint8_t sender_id, uint8_t val) {
@@ -58,7 +59,7 @@ void msg_w(uint8_t sender_id, uint8_t val) {
 
 void msg_gw(uint8_t sender_id) {
     uint8_t ff_byte = ff_control_enabled ? 1 : 0;
-    i2c_cmd_float_send(sender_id, R_CMD_gw, ff_byte);
+    i2c_cmd_byte_send(sender_id, R_CMD_gw, ff_byte);
 }
 
 void msg_b(uint8_t sender_id, uint8_t val) {
@@ -68,7 +69,7 @@ void msg_b(uint8_t sender_id, uint8_t val) {
 
 void msg_gb(uint8_t sender_id) {
     uint8_t fb_byte = fb_control_enabled ? 1 : 0;
-    i2c_cmd_float_send(sender_id, R_CMD_gb, fb_byte);
+    i2c_cmd_byte_send(sender_id, R_CMD_gb, fb_byte);
 }
 
 void msg_gx(uint8_t sender_id) {
@@ -118,7 +119,7 @@ void msg_gv(uint8_t sender_id) {
 }
 
 void msg_gf(uint8_t sender_id) {
-	i2c_cmd_float_send(sender_id, R_CMD_gp, flicker_sum / (float) n_samples);
+	i2c_cmd_float_send(sender_id, R_CMD_gf, flicker_sum / (float) n_samples);
 }
 
 
@@ -193,6 +194,7 @@ void r_msg_o(uint8_t sender_id) {
 }
 
 void r_msg_go(uint8_t sender_id, uint8_t val){
+    Serial.printf("r_msg go = %d\n", val);
     Serial.printf("o %d %d\n", index_of(sender_id, node_id, node_count), val);
 }
 
