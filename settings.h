@@ -26,9 +26,14 @@
 
 #define LDR_R 10000.0
 
-#define LDR_B 6.15
+#define LDR_B_2D 6.35
+#define LDR_M_2D -1.05
 
-#define LDR_M -1.0
+#define LDR_B_3D 6.15
+#define LDR_M_3D -1.00
+
+#define LDR_B_61 6.30
+#define LDR_M_61 -0.95
 
 #define DC_CAL_HIGH 0.9
 
@@ -40,6 +45,13 @@
 
 //in ms
 #define TIMESTEP 10
+
+
+#define UNOCCUPIED_REFERENCE 5.0
+
+#define OCCUPIED_REFERENCE 30.0
+
+#define COST 1.0
 
 
 
