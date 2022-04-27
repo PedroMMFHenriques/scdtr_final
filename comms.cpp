@@ -9,6 +9,7 @@
 #include "calibrations.h"
 #include "protocol.h"
 #include "msg_queue.h"
+#include "consensus.h"
 
 #include "msg_functions.h"
 
@@ -81,6 +82,15 @@ void i2c_cmd_float_send(uint8_t id, uint8_t cmd, float val) {
     i2c_send(id, msg, msg_size);
 }
 
+void i2c_cmd_n_floats_send(uint8_t id, uint8_t cmd, float *val, int n) {
+    uint8_t msg[MSG_SIZE];
+    int msg_size;
+    uint8_t *val_byte_array = (uint8_t*) (val);
+
+    msg_size = msg_formatter(msg, cmd, val_byte_array, 4 * n);
+    i2c_send(id, msg, msg_size);
+}
+
 void i2c_cmd_byte_send(uint8_t id, uint8_t cmd, uint8_t val) {
     uint8_t msg[MSG_SIZE];
     int msg_size;
@@ -145,6 +155,7 @@ float byte_array_to_float(uint8_t *byte_array) {
 
 void msg_handler_parser(uint8_t *msg, int len) {
     float val;
+    Eigen::Vector3f val_vec;
 
     if (msg[1] != len) {
         Serial.printf("Spwish spwash, your message is trash!\n");
@@ -166,6 +177,17 @@ void msg_handler_parser(uint8_t *msg, int len) {
         break;
     case MEASURE_ACK:
         cal_ack_msg_handler();
+        break;
+
+    case CONSENSUS_START:
+        cons_start_msg_handler();
+        break;
+    
+    case CONSENSUS_SOLUTION:
+        val_vec(0) = byte_array_to_float(&msg[3]);
+        val_vec(1) = byte_array_to_float(&msg[7]);
+        val_vec(2) = byte_array_to_float(&msg[11]);
+        cons_sol_msg_handler(msg[0], val_vec);
         break;
 
     case CMD_d:

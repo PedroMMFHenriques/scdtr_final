@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "msg_queue.h"
 #include "cli.h"
+#include "consensus.h"
 
 struct repeating_timer timer;
 volatile uint32_t timer_time {0};
@@ -58,6 +59,11 @@ void loop() {
         if (node_count == N_NODES) {
             node_discovery();
             sort3(node_id);
+
+            float idx = index_of(my_id, node_id, N_NODES);
+            Eigen::Vector3f K(gain[0],gain[1],gain[2]);
+            node.init_cons(idx, external_illumination, cost, K);
+
             state = waiting_callibration;
             calibrate_external_illum();
         }
@@ -99,6 +105,9 @@ void loop() {
         Serial.printf("Waiting all done...\n");
         delay(1);
         if (calibrate_all_done) {
+            if (my_id == node_id[0]) {
+                reference_lower_bound_changed = true;
+            }
             state = normal;
             Serial.printf("Initialization done!\n");
             Serial.printf("My ID: %X\n", my_id);
@@ -111,6 +120,46 @@ void loop() {
 
     case normal:
         cli();
+
+        if(reference_lower_bound_changed){
+            reference_lower_bound_changed = false;
+            start_consensus();
+        }
+
+        break;
+
+    case consensus_calc:
+        Serial.printf("Calculating consensus...\n");
+        if(iter_num == MAX_ITER){
+            Serial.printf("Consensus DONE...\n");
+            
+            //guardar resultados
+            node.get_sol_results();
+
+            reference_changed = true;
+
+            Serial.printf("reference: %f\n", reference);
+            Serial.printf("duty_cycle_consensus: %f\n", duty_cycle_consensus);
+
+            state = normal;
+            break;
+        }
+
+        cons_ack_count = 0;
+        node.iter_cons();
+        iter_num++;
+        
+        state = consensus_wait;        
+        break;
+
+    case consensus_wait:
+        Serial.printf("Waiting consensus...\n");
+        if (cons_ack_count == N_NODES) {
+            Eigen::Vector3f d_av = (dc[0] + dc[1] + dc[2])/3;
+            node.update_cons(d_av);
+
+            state = consensus_calc;
+        }
         break;
 
     default:

@@ -1,11 +1,14 @@
 #include "gvars.h"
 #include "settings.h"
 
+int iter_num = 0;
+
 uint8_t my_id;
 uint8_t node_id[N_NODES];
 volatile int node_count = 0;
 
 float gain[N_NODES];
+Eigen::Vector3f dc[N_NODES];
 
 volatile float external_illumination;
 
@@ -13,8 +16,17 @@ volatile bool calibrate_now = false;
 volatile int cal_ack_count = 0;
 volatile bool calibrate_all_done = false;
 
+volatile int cons_ack_count = 0;
+
+cons node(RHO, MAX_ITER);
+
 states state = discovery;
 
+bool reference_changed = false;
+
+bool reference_lower_bound_changed = false;
+
+float duty_cycle_consensus = 0.0;
 
 float reference = 0.0;
 

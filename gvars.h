@@ -1,14 +1,20 @@
 #pragma once
 
 #include <stdint.h>
+#include <ArduinoEigenDense.h>
 
 #include "states.h"
 
+#include "consensus.h"
+
+
+extern int iter_num;
 extern uint8_t my_id;
 extern uint8_t node_id[];
 extern volatile int node_count;
 
 extern float gain[];
+extern Eigen::Vector3f dc[];
 
 extern volatile float external_illumination;
 
@@ -16,7 +22,19 @@ extern volatile bool calibrate_now;
 extern volatile int cal_ack_count;
 extern volatile bool calibrate_all_done;
 
+
+extern volatile int cons_ack_count;
+
+extern cons node;
+
 extern states state;
+
+
+extern bool reference_changed;
+
+extern bool reference_lower_bound_changed;
+
+extern float duty_cycle_consensus;
 
 
 extern float reference;

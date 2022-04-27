@@ -53,6 +53,10 @@
 
 #define COST 1.0
 
+//consensus parameters
+#define MAX_ITER 20
+#define RHO 0.07
+
 
 
 

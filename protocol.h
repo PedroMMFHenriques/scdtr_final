@@ -10,6 +10,9 @@
 #define DONE_CALIBRATE 0x23
 #define MEASURE_ACK 0x24
 
+#define CONSENSUS_START 0x77
+#define CONSENSUS_SOLUTION 0x78
+
 
 // PART I CMDS //
 #define CMD_d  0x25
