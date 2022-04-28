@@ -1,6 +1,6 @@
 #pragma once
 
-// <sender ID> <msg size> <CMD> <data> ... <data>
+// <sender ID> <sender ID> <sender ID> <msg size> <CMD> <data> ... <data> <sender ID> <sender ID> <sender ID>
 
 #define BROADCAST 0x00
 

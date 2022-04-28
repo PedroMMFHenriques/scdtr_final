@@ -64,7 +64,7 @@ void req_handler() {
 
 void i2c_send(uint8_t id, uint8_t *msg, int len) {
     int write_err;
-    //Serial.printf("VOU MANDAR %c PARA %X !!\n", msg[0], id);
+    //Serial.printf("VOU MANDAR %c PARA %X !!\n", msg[2], id);
     do
     {
         Wire.beginTransmission(id);
@@ -109,12 +109,15 @@ void i2c_cmd_send(uint8_t id, uint8_t cmd) {
 
 int msg_formatter(uint8_t *msg, uint8_t cmd, uint8_t *data, int data_size) {
     msg[0] = my_id;
-    msg[1] = data_size + 3;
-    msg[2] = cmd;
+    msg[1] = my_id;
+    msg[2] = my_id;
+    msg[3] = data_size + 8;
+    msg[4] = cmd;
     if (data_size) {
-        memcpy(&msg[3], data, data_size);
+        memcpy(&msg[5], data, data_size);
     }
-    return msg[1]; //total message size
+    msg[data_size + 5];
+    return msg[3]; //total message size
 }
 
 void node_discovery(void) {
@@ -157,17 +160,17 @@ void msg_handler_parser(uint8_t *msg, int len) {
     float val;
     Eigen::Vector3f val_vec;
 
-    if (msg[1] != len) {
-        Serial.printf("Spwish spwash, your message is trash!\n");
-        return;
-    }
+    // if (msg[1] != len) {
+    //     Serial.printf("Spwish spwash, your message is trash!\n");
+    //     return;
+    // }
 
-    switch (msg[2]) {
+    switch (msg[4]) {
     case WAKEUP:
-        wakeup_msg_handler(msg[3]);
+        wakeup_msg_handler(msg[5]);
         break;
     case MEASURE:
-        measure_msg_handler(msg[3]);
+        measure_msg_handler(msg[5]);
         break;
     case CALIBRATE:
         calibrate_msg_handler();
@@ -184,213 +187,213 @@ void msg_handler_parser(uint8_t *msg, int len) {
         break;
     
     case CONSENSUS_SOLUTION:
-        val_vec(0) = byte_array_to_float(&msg[3]);
-        val_vec(1) = byte_array_to_float(&msg[7]);
-        val_vec(2) = byte_array_to_float(&msg[11]);
-        cons_sol_msg_handler(msg[0], val_vec);
+        val_vec(0) = byte_array_to_float(&msg[5]);
+        val_vec(1) = byte_array_to_float(&msg[9]);
+        val_vec(2) = byte_array_to_float(&msg[13]);
+        cons_sol_msg_handler(msg[2], val_vec);
         break;
 
     case CMD_d:
-        val = byte_array_to_float(&msg[3]);
-        msg_d(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        msg_d(msg[2], val);
         break;
     case CMD_gd:
-        msg_gd(msg[0]);
+        msg_gd(msg[2]);
         break;
     case CMD_r:
-        val = byte_array_to_float(&msg[3]);
-        msg_r(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        msg_r(msg[2], val);
         break;
     case CMD_gr:
-        msg_gr(msg[0]);
+        msg_gr(msg[2]);
         break;
     case CMD_gl:
-        msg_gl(msg[0]);
+        msg_gl(msg[2]);
         break;
     case CMD_o:
-        msg_o(msg[0], msg[3]);
+        msg_o(msg[2], msg[5]);
         break;
     case CMD_go:
-        msg_go(msg[0]);
+        msg_go(msg[2]);
         break;
     case CMD_a:
-        msg_a(msg[0], msg[3]);
+        msg_a(msg[2], msg[5]);
         break;
     case CMD_ga:
-        msg_ga(msg[0]);
+        msg_ga(msg[2]);
         break;
     case CMD_w:
-        msg_w(msg[0], msg[3]);
+        msg_w(msg[2], msg[5]);
         break;
     case CMD_gw:
-        msg_gw(msg[0]);
+        msg_gw(msg[2]);
         break;
     case CMD_b:
-        msg_b(msg[0], msg[3]);
+        msg_b(msg[2], msg[5]);
         break;
     case CMD_gb:
-        msg_gb(msg[0]);
+        msg_gb(msg[2]);
         break;
     case CMD_gx:
-        msg_gx(msg[0]);
+        msg_gx(msg[2]);
         break;
     case CMD_gp:
-        msg_gp(msg[0]);
+        msg_gp(msg[2]);
         break;
     case CMD_gt:
-        msg_gt(msg[0]);
+        msg_gt(msg[2]);
         break;
     case CMD_sl:
-        msg_sl(msg[0]);
+        msg_sl(msg[2]);
         break;
     case CMD_sd:
-        msg_sd(msg[0]);
+        msg_sd(msg[2]);
         break;
     case CMD_Bl:
-        msg_Bl(msg[0]);
+        msg_Bl(msg[2]);
         break;
     case CMD_Bd:
-        msg_Bd(msg[0]);
+        msg_Bd(msg[2]);
         break;
     case CMD_ge:
-        msg_ge(msg[0]);
+        msg_ge(msg[2]);
         break;
     case CMD_gv:
-        msg_gv(msg[0]);
+        msg_gv(msg[2]);
         break;
     case CMD_gf:
-        msg_gf(msg[0]);
+        msg_gf(msg[2]);
         break;
     case CMD_gO:
-        msg_gO(msg[0]);
+        msg_gO(msg[2]);
         break;
     case CMD_gU:
-        msg_gU(msg[0]);
+        msg_gU(msg[2]);
         break;
     case CMD_gL:
-        msg_gL(msg[0]);
+        msg_gL(msg[2]);
         break;
     case CMD_gc:
-        msg_gc(msg[0]);
+        msg_gc(msg[2]);
         break;  
     case CMD_O:
-        val = byte_array_to_float(&msg[3]);
-        msg_O(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        msg_O(msg[2], val);
         break;
     case CMD_U:
-        val = byte_array_to_float(&msg[3]);
-        msg_U(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        msg_U(msg[2], val);
         break;
     case CMD_c:
-        val = byte_array_to_float(&msg[3]);
-        msg_c(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        msg_c(msg[2], val);
         break;
     case CMD_R:
         msg_R();
         break;  
     case R_CMD_d:
-        r_msg_d(msg[0]);
+        r_msg_d(msg[2]);
         break;
     case R_CMD_gd:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_gd(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_gd(msg[2], val);
         break;
     case R_CMD_r:
-        r_msg_r(msg[0]);
+        r_msg_r(msg[2]);
         break;
     case R_CMD_gr:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_gr(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_gr(msg[2], val);
         break;
     case R_CMD_gl:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_gl(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_gl(msg[2], val);
         break;
     case R_CMD_o:
-        r_msg_o(msg[0]);
+        r_msg_o(msg[2]);
         break;
     case R_CMD_go:
-        Serial.printf("msg[3]] = %d\n", msg[3]);
-        r_msg_go(msg[0], msg[3]);
+        Serial.printf("msg[5]] = %d\n", msg[5]);
+        r_msg_go(msg[2], msg[5]);
         break;
     case R_CMD_a:
-        r_msg_a(msg[0]);
+        r_msg_a(msg[2]);
         break;
     case R_CMD_ga:
-        r_msg_ga(msg[0], msg[3]);
+        r_msg_ga(msg[2], msg[5]);
         break;
     case R_CMD_w:
-        r_msg_w(msg[0]);
+        r_msg_w(msg[2]);
         break;
     case R_CMD_gw:
-        r_msg_gw(msg[0], msg[3]);
+        r_msg_gw(msg[2], msg[5]);
         break;
     case R_CMD_b:
-        r_msg_b(msg[0]);
+        r_msg_b(msg[2]);
         break;
     case R_CMD_gb:
-        r_msg_gb(msg[0], msg[3]);
+        r_msg_gb(msg[2], msg[5]);
         break;
     case R_CMD_gx:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_gx(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_gx(msg[2], val);
         break;
     case R_CMD_gp:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_gp(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_gp(msg[2], val);
         break;
     case R_CMD_gt:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_gt(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_gt(msg[2], val);
         break;
     case R_CMD_sl:
-        r_msg_sl(msg[0]);
+        r_msg_sl(msg[2]);
         break;
     case R_CMD_sd:
-        r_msg_sd(msg[0]);
+        r_msg_sd(msg[2]);
         break;
     case R_CMD_Bl:
-        r_msg_Bl(msg[0]);
+        r_msg_Bl(msg[2]);
         break;
     case R_CMD_Bd:
-        r_msg_Bd(msg[0]);
+        r_msg_Bd(msg[2]);
         break;
     case R_CMD_ge:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_ge(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_ge(msg[2], val);
         break;
     case R_CMD_gv:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_gv(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_gv(msg[2], val);
         break;
     case R_CMD_gf:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_gf(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_gf(msg[2], val);
         break;
     case R_CMD_gO:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_gO(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_gO(msg[2], val);
         break;
     case R_CMD_gU:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_gU(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_gU(msg[2], val);
         break;
     case R_CMD_gL:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_gL(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_gL(msg[2], val);
         break;
     case R_CMD_gc:
-        val = byte_array_to_float(&msg[3]);
-        r_msg_gc(msg[0], val);
+        val = byte_array_to_float(&msg[5]);
+        r_msg_gc(msg[2], val);
         break;
     case R_CMD_O:
-        r_msg_O(msg[0]);
+        r_msg_O(msg[2]);
         break;
     case R_CMD_U:
-        r_msg_U(msg[0]);
+        r_msg_U(msg[2]);
         break;
     case R_CMD_c:
-        r_msg_c(msg[0]);
+        r_msg_c(msg[2]);
         break;
     case R_CMD_R:
         r_msg_R();
