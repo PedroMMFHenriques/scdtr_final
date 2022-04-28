@@ -1,6 +1,5 @@
-#include <stdint.h>
-
 #include "consensus.h"
+#include <stdint.h>
 #include "comms.h"
 #include "gvars.h"
 #include "protocol.h"
@@ -35,7 +34,8 @@ void cons::new_ref(float L) {
 }
 
 void cons::iter_cons() {
-    Serial.printf("inicio iter_cons: L: %f; d_av: %f %f %f \n", L, d_av(0), d_av(1), d_av(2));
+    // Serial.printf("inicio iter_cons: L: %f; d_av: %f %f %f \n", L, d_av(0), d_av(1), d_av(2));
+    // Serial.printf("inicio iter_cons: y: %f %f %f \n", y(0), y(1), y(2));
     // iteration initialization
     Vector3f d_best(-1, -1, -1);
     float cost_best = 1000000;
@@ -54,82 +54,83 @@ void cons::iter_cons() {
             d_best = d_u;
             cost_best = cost_unconstrained;
         }
-    }
+    } else {
+        // compute minimum constrained to linear boundary
+        Vector3f d_bl = (1 / rho) * z - K / n * (o - L + (1 / rho) * z.transpose() * K);
+        // check feasibility of minimum constrained to linear boundary
+        sol_boundary_linear = check_feasibility(d_bl);
+        // compute cost and if best store new optimum
+        if (sol_boundary_linear) {
+            float cost_boundary_linear = evaluate_cost(d_bl);
+            if (cost_boundary_linear < cost_best) {
+                d_best = d_bl;
+                cost_best = cost_boundary_linear;
+            }
+        }
 
-    // compute minimum constrained to linear boundary
-    Vector3f d_bl = (1 / rho) * z - K / n * (o - L + (1 / rho) * z.transpose() * K);
-    // check feasibility of minimum constrained to linear boundary
-    sol_boundary_linear = check_feasibility(d_bl);
-    // compute cost and if best store new optimum
-    if (sol_boundary_linear) {
-        float cost_boundary_linear = evaluate_cost(d_bl);
-        if (cost_boundary_linear < cost_best) {
-            d_best = d_bl;
-            cost_best = cost_boundary_linear;
+        // compute minimum constrained to 0 boundary
+        Vector3f d_b0 = (1 / rho) * z;
+        d_b0(idx) = 0;
+        // check feasibility of minimum constrained to 0 boundary
+        sol_boundary_0 = check_feasibility(d_b0);
+        // compute cost and if best store new optimum
+        if (sol_boundary_0) {
+            float cost_boundary_0 = evaluate_cost(d_b0);
+            if (cost_boundary_0 < cost_best) {
+                d_best = d_b0;
+                cost_best = cost_boundary_0;
+            }
+        }
+
+        // compute minimum constrained to 100 boundary
+        Vector3f d_b1 = (1 / rho) * z;
+        d_b1(idx) = 100;
+        // check feasibility of minimum constrained to 100 boundary
+        sol_boundary_100 = check_feasibility(d_b1);
+        // compute cost and if best store new optimum
+        if (sol_boundary_100) {
+            float cost_boundary_100 = evaluate_cost(d_b1);
+            if (cost_boundary_100 < cost_best) {
+                d_best = d_b1;
+                cost_best = cost_boundary_100;
+            }
+        }
+
+        // compute minimum constrained to linear and 0 boundary
+        Vector3f d_l0 = (1 / rho) * z - (1 / sqr_diff) * K * (o - L) + (1 / rho / sqr_diff) * K * (K(idx) * z(idx) - z.transpose() * K);
+        d_l0(idx) = 0;
+        // check feasibility of minimum constrained to linear and 0 boundary
+        sol_linear_0 = check_feasibility(d_l0);
+        // compute cost and if best store new optimum
+        if (sol_linear_0) {
+            float cost_linear_0 = evaluate_cost(d_l0);
+            if (cost_linear_0 < cost_best) {
+                d_best = d_l0;
+                cost_best = cost_linear_0;
+            }
+        }
+
+        // compute minimum constrained to linear and 100 boundary
+        Vector3f d_l1 = (1 / rho) * z - (1 / sqr_diff) * K * (o - L + 100 * K(idx)) + (1 / rho / sqr_diff) * K * (K(idx) * z(idx) - z.transpose() * K);
+        d_l1(idx) = 100;
+        // check feasibility of minimum constrained to linear and 100 boundary
+        sol_linear_100 = check_feasibility(d_l1);
+        /// compute cost and if best store new optimum
+        if (sol_linear_100) {
+            float cost_linear_100 = evaluate_cost(d_l1);
+            if (cost_linear_100 < cost_best) {
+                d_best = d_l1;
+                cost_best = cost_linear_100;
+            }
         }
     }
-
-    // compute minimum constrained to 0 boundary
-    Vector3f d_b0 = (1 / rho) * z;
-    d_b0(idx) = 0;
-    // check feasibility of minimum constrained to 0 boundary
-    sol_boundary_0 = check_feasibility(d_b0);
-    // compute cost and if best store new optimum
-    if (sol_boundary_0) {
-        float cost_boundary_0 = evaluate_cost(d_b0);
-        if (cost_boundary_0 < cost_best) {
-            d_best = d_b0;
-            cost_best = cost_boundary_0;
-        }
-    }
-
-    // compute minimum constrained to 100 boundary
-    Vector3f d_b1 = (1 / rho) * z;
-    d_b1(idx) = 100;
-    // check feasibility of minimum constrained to 100 boundary
-    sol_boundary_100 = check_feasibility(d_b1);
-    // compute cost and if best store new optimum
-    if (sol_boundary_100) {
-        float cost_boundary_100 = evaluate_cost(d_b1);
-        if (cost_boundary_100 < cost_best) {
-            d_best = d_b1;
-            cost_best = cost_boundary_100;
-        }
-    }
-
-    // compute minimum constrained to linear and 0 boundary
-    Vector3f d_l0 = (1 / rho) * z - (1 / sqr_diff) * K * (o - L) + (1 / rho / sqr_diff) * K * (K(idx) * z(idx) - z.transpose() * K);
-    d_l0(idx) = 0;
-    // check feasibility of minimum constrained to linear and 0 boundary
-    sol_linear_0 = check_feasibility(d_l0);
-    // compute cost and if best store new optimum
-    if (sol_linear_0) {
-        float cost_linear_0 = evaluate_cost(d_l0);
-        if (cost_linear_0 < cost_best) {
-            d_best = d_l0;
-            cost_best = cost_linear_0;
-        }
-    }
-
-    // compute minimum constrained to linear and 100 boundary
-    Vector3f d_l1 = (1 / rho) * z - (1 / sqr_diff) * K * (o - L + 100 * K(idx)) + (1 / rho / sqr_diff) * K * (K(idx) * z(idx) - z.transpose() * K);
-    d_l1(idx) = 100;
-    // check feasibility of minimum constrained to linear and 100 boundary
-    sol_linear_100 = check_feasibility(d_l1);
-    /// compute cost and if best store new optimum
-    if (sol_linear_100) {
-        float cost_linear_100 = evaluate_cost(d_l1);
-        if (cost_linear_100 < cost_best) {
-            d_best = d_l1;
-            cost_best = cost_linear_100;
-        }
-    }
-
 
     my_d_best = d_best;
     my_cost_best = cost_best;
+    d = my_d_best;
 
-    Serial.printf("final iter_cons: L: %f; d_best: %f %f %f \n", L, d_best(0), d_best(1), d_best(2));
+    // Serial.printf("final iter_cons: L: %f; d_best: %f %f %f \n", L, d_best(0), d_best(1), d_best(2));
+    // Serial.printf("final iter_cons: y: %f %f %f \n", y(0), y(1), y(2));
 
     // broadcast SOLUTION
     float solution[3];
@@ -157,13 +158,18 @@ float cons::evaluate_cost(Vector3f _d) {
 }
 
 void cons::update_cons(Vector3f _d_av) {
+    // Serial.printf("before lagrangian updates: y: %f %f %f \n", y(0), y(1), y(2));
+    // Serial.printf("before lagrangian updates: d_av: %f %f %f \n", d_av(0), d_av(1), d_av(2));
+    // Serial.printf("before lagrangian updates: d: %f %f %f \n", d(0), d(1), d(2));
+    // Serial.printf("before lagrangian updates: rho: %f\n", rho);
     d_av = _d_av;
-    y += rho * (d - d_av);
+    y = y + rho * (d - d_av);
+    // Serial.printf("after lagrangian updates: y: %f %f %f \n", y(0), y(1), y(2));
 }
 
 void cons::get_sol_results() {
     duty_cycle_consensus = d_av(idx);
-    reference = K.transpose()*d + o;
+    reference = K.transpose() * d + o;
 }
 
 void start_consensus() {

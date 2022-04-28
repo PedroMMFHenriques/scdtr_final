@@ -105,9 +105,18 @@ void loop() {
                 reference_lower_bound_changed = true;
             }
 
+            float g1 = 0.5, g2 = 0.5, g3 = 0.5;
+            if (my_id == node_id[0]) {
+                g1 = 2;
+            } else if(my_id == node_id[1]) {
+                g2 = 2;
+            } else {
+                g3 = 2;
+            }
+
             int idx = index_of(my_id, node_id, N_NODES);
-            Eigen::Vector3f K(gain[0]/100.0,gain[1]/100.0,gain[2]/100.0);
-            node.init_cons(idx, external_illumination, cost, K);
+            Eigen::Vector3f K(g1, g2, g3);
+            node.init_cons(idx, 1.0, cost, K);
 
             state = normal;
             Serial.printf("Initialization done!\n");
@@ -155,17 +164,17 @@ void loop() {
         iter_num++;
         
         state = consensus_wait;     
-        Serial.printf("Waiting consensus...\n");   
+        Serial.printf("Waiting consensus... (iter %d)\n", iter_num);   
         break;
 
     case consensus_wait:
         if (cons_ack_count == N_NODES) {
             Eigen::Vector3f d_av = (dc[0] + dc[1] + dc[2])/3;
-            Serial.printf("Received dc: \n");
-            Serial.printf("dc_0: %f %f %f \n", dc[0](0), dc[0](1), dc[0](2));
-            Serial.printf("dc_1: %f %f %f \n", dc[1](0), dc[1](1), dc[1](2));
-            Serial.printf("dc_2: %f %f %f \n", dc[2](0), dc[2](1), dc[2](2));
-            Serial.printf("d_av: %f %f %f \n", d_av(0), d_av(1), d_av(2));
+            // Serial.printf("Received dc: \n");
+            // Serial.printf("dc_0: %f %f %f \n", dc[0](0), dc[0](1), dc[0](2));
+            // Serial.printf("dc_1: %f %f %f \n", dc[1](0), dc[1](1), dc[1](2));
+            // Serial.printf("dc_2: %f %f %f \n", dc[2](0), dc[2](1), dc[2](2));
+            // Serial.printf("d_av: %f %f %f \n", d_av(0), d_av(1), d_av(2));
             node.update_cons(d_av);
 
             state = consensus_calc;
