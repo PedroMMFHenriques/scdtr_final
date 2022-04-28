@@ -60,18 +60,14 @@ void loop() {
             node_discovery();
             sort3(node_id);
 
-            float idx = index_of(my_id, node_id, N_NODES);
-            Eigen::Vector3f K(gain[0],gain[1],gain[2]);
-            node.init_cons(idx, external_illumination, cost, K);
-
             state = waiting_callibration;
             calibrate_external_illum();
+            Serial.printf("Waiting callibration...\n");
+            delay(1);
         }
         break;
 
     case waiting_callibration:
-        Serial.printf("Waiting callibration...\n");
-        delay(1);
         if (node_id[0] == my_id) {
             calibrate_now = true;
         }
@@ -98,16 +94,21 @@ void loop() {
         if (cal_ack_count == N_NODES) {
             state = callibration_finish;
             calibrate_gains_finish();
+            Serial.printf("Waiting all done...\n");
+            delay(1);
         }
         break;
 
     case callibration_finish:
-        Serial.printf("Waiting all done...\n");
-        delay(1);
         if (calibrate_all_done) {
             if (my_id == node_id[0]) {
                 reference_lower_bound_changed = true;
             }
+
+            int idx = index_of(my_id, node_id, N_NODES);
+            Eigen::Vector3f K(gain[0]/100.0,gain[1]/100.0,gain[2]/100.0);
+            node.init_cons(idx, external_illumination, cost, K);
+
             state = normal;
             Serial.printf("Initialization done!\n");
             Serial.printf("My ID: %X\n", my_id);
@@ -120,6 +121,10 @@ void loop() {
 
     case normal:
         cli();
+
+        // Serial.printf("External Ilumination: %f\n", external_illumination);
+        // Serial.printf("Gains: %f %f %f\n\n\n", gain[0], gain[1], gain[2]);
+        // delay(10000);
 
         if(reference_lower_bound_changed){
             reference_lower_bound_changed = false;
@@ -149,13 +154,18 @@ void loop() {
         node.iter_cons();
         iter_num++;
         
-        state = consensus_wait;        
+        state = consensus_wait;     
+        Serial.printf("Waiting consensus...\n");   
         break;
 
     case consensus_wait:
-        Serial.printf("Waiting consensus...\n");
         if (cons_ack_count == N_NODES) {
             Eigen::Vector3f d_av = (dc[0] + dc[1] + dc[2])/3;
+            Serial.printf("Received dc: \n");
+            Serial.printf("dc_0: %f %f %f \n", dc[0](0), dc[0](1), dc[0](2));
+            Serial.printf("dc_1: %f %f %f \n", dc[1](0), dc[1](1), dc[1](2));
+            Serial.printf("dc_2: %f %f %f \n", dc[2](0), dc[2](1), dc[2](2));
+            Serial.printf("d_av: %f %f %f \n", d_av(0), d_av(1), d_av(2));
             node.update_cons(d_av);
 
             state = consensus_calc;

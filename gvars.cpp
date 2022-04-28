@@ -32,7 +32,7 @@ float reference = 0.0;
 
 float reference_backup = 0.0;
 
-bool occupancy = true;
+bool occupancy = false;
 
 bool anti_windup_enabled = true;
 
@@ -66,6 +66,6 @@ float unoccupied_reference = UNOCCUPIED_REFERENCE;
 float occupied_reference = OCCUPIED_REFERENCE;
 
 
-float reference_lower_bound = 0.0;
+float reference_lower_bound = UNOCCUPIED_REFERENCE;
 
 float cost = COST;
