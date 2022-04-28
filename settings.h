@@ -46,7 +46,6 @@
 //in ms
 #define TIMESTEP 10
 
-
 #define UNOCCUPIED_REFERENCE 5.0
 
 #define OCCUPIED_REFERENCE 30.0
@@ -56,6 +55,8 @@
 //consensus parameters
 #define MAX_ITER 20
 #define RHO 0.07
+
+#define SAMPLES_PER_MEASUREMENT 20
 
 
 

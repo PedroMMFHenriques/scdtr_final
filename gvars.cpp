@@ -60,7 +60,6 @@ float flicker_sum = 0.0;
 int n_samples = 0;
 
 
-
 float unoccupied_reference = UNOCCUPIED_REFERENCE;
 
 float occupied_reference = OCCUPIED_REFERENCE;
@@ -69,3 +68,16 @@ float occupied_reference = OCCUPIED_REFERENCE;
 float reference_lower_bound = UNOCCUPIED_REFERENCE;
 
 float cost = COST;
+
+unsigned long t_start = 0;
+unsigned long t_startSim = 0;
+bool startup = true;
+
+float ff_duty_cycle = 0;
+float fb_duty_cycle = 0;
+
+pi cont(K_P, K_I, TIMESTEP); //E SE DEMORAR MAIS QUE 1 TIMESTEP??????
+sim simu{ADC_REF, LDR_R};
+
+float ldr_b;
+float ldr_m;

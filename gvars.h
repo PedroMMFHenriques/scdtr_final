@@ -6,6 +6,8 @@
 #include "states.h"
 
 #include "consensus.h"
+#include "pi.h"
+#include "simulator.h"
 
 
 extern int iter_num;
@@ -78,3 +80,15 @@ extern float occupied_reference;
 extern float reference_lower_bound;
 
 extern float cost;
+
+extern unsigned long t_start;
+extern unsigned long t_startSim;
+extern bool startup;
+
+extern float ff_duty_cycle;
+extern float fb_duty_cycle;
+extern pi cont;
+extern sim simu;
+
+extern float ldr_m;
+extern float ldr_b;

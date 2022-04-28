@@ -7,6 +7,7 @@
 #include "comms.h"
 #include "utils.h"
 #include "protocol.h"
+#include "settings.h"
 
 
 void msg_d(uint8_t sender_id, float val){
@@ -32,7 +33,15 @@ void msg_gl(uint8_t sender_id){
 }
 
 void msg_o(uint8_t sender_id, uint8_t val) {
-    occupancy = (val == 1);	
+    //SUSSY BACKA
+    if(occupancy != (val == 1)){
+        occupancy = (val == 1);
+
+        if(occupancy) reference_lower_bound = OCCUPIED_REFERENCE;
+        else reference_lower_bound = UNOCCUPIED_REFERENCE;
+        reference_lower_bound_changed = true;
+    }
+    
     i2c_cmd_send(sender_id, R_CMD_o);
 }
 
@@ -81,7 +90,7 @@ void msg_gp(uint8_t sender_id) {
 }
 
 void msg_gt(uint8_t sender_id) {
-	i2c_cmd_float_send(sender_id, R_CMD_gt, (float) millis() / 1000.0); 
+	i2c_cmd_float_send(sender_id, R_CMD_gt, (float) (micros() - t_start) / 1000000.0); 
 }
 
 void msg_sl(uint8_t sender_id) {
@@ -144,11 +153,15 @@ void msg_gc(uint8_t sender_id) {
 
 void msg_O(uint8_t sender_id, float val) {
 	occupied_reference = val;
+    if(occupancy) reference_lower_bound_changed = true;
+        
     i2c_cmd_send(sender_id, R_CMD_O);
 }
 
 void msg_U(uint8_t sender_id, float val) {
 	unoccupied_reference = val;
+    if(!occupancy) reference_lower_bound_changed = true;
+
     i2c_cmd_send(sender_id, R_CMD_U);
 }
 
