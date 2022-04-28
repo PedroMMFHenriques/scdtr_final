@@ -313,7 +313,6 @@ void msg_handler_parser(uint8_t *msg, int len) {
         r_msg_o(msg[2]);
         break;
     case R_CMD_go:
-        Serial.printf("msg[5]] = %d\n", msg[5]);
         r_msg_go(msg[2], msg[5]);
         break;
     case R_CMD_a:

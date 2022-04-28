@@ -39,7 +39,7 @@ void setup() {
 
     initI2C(my_id);
 
-    //meter numa função????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????'
+
     if (my_id == 0x2D) {
         ldr_b = LDR_B_2D;
         ldr_m = LDR_M_2D;
@@ -62,6 +62,8 @@ void loop() {
     float Yadc_sum;
     float adc_measurement;
     float flicker;
+    uint32_t consensus_iter_start_time;
+    float fb_Rlux;
     
     //cooler message parser
     etl::vector<uint8_t, MSG_SIZE> msg;
@@ -146,9 +148,12 @@ void loop() {
     case normal:
         cli();
 
+        // Serial.printf("My ID: %X\n", my_id);
         // Serial.printf("External Ilumination: %f\n", external_illumination);
+        // Serial.printf("Current External Ilumination: %f\n", adc_to_lux(analogRead(LDR_PIN)));
+        // //Serial.printf("ADC External Ilumination: %f\n", external_illumination/gain[index_of(my_id, node_id, 3)]);
         // Serial.printf("Gains: %f %f %f\n\n\n", gain[0], gain[1], gain[2]);
-        // delay(10000);
+        // delay(1);
 
         if(reference_lower_bound_changed){
             reference_lower_bound_changed = false;
@@ -183,12 +188,13 @@ void loop() {
         node.iter_cons();
         iter_num++;
         
-        state = consensus_wait;     
+        state = consensus_wait;
+        consensus_iter_start_time =  millis();  
         Serial.printf("Waiting consensus... (iter %d)\n", iter_num);   
         break;
 
     case consensus_wait:
-        if (cons_ack_count == N_NODES) {
+        if (cons_ack_count == N_NODES || millis() - consensus_iter_start_time > CONSENSUS_TIMEOUT) {
             Eigen::Vector3f d_av = (dc[0] + dc[1] + dc[2])/3;
             // Serial.printf("Received dc: \n");
             // Serial.printf("dc_0: %f %f %f \n", dc[0](0), dc[0](1), dc[0](2));
@@ -219,7 +225,7 @@ void loop() {
 
         //turn on/off feedback control
         if(fb_control_enabled){ 
-            if(reference_changed){ 
+            if(reference_changed){  
                 reference_changed = false;
 
                 //calculate tau and readies the class
@@ -229,7 +235,7 @@ void loop() {
             }
 
             //having the tau, just needs to calculate voltage
-            float fb_Rlux = volt_to_lux(simu.get_vt((micros() - t_startSim)/pow(10,6))); //new lux reference for the FB based on the simulator
+            fb_Rlux = volt_to_lux(simu.get_vt((micros() - t_startSim)/pow(10,6))); //new lux reference for the FB based on the simulator
             fb_duty_cycle = cont.calc_pwm(fb_Rlux, measured_illuminance, anti_windup_enabled, ff_duty_cycle);
         }
         else fb_duty_cycle = 0;

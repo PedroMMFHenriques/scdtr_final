@@ -30,6 +30,9 @@ void cons::init_cons(int _idx, float _o, float _cost, Vector3f _K) {
 }
 
 void cons::new_ref(float L) {
+    d = Vector3f::Zero();
+    d_av = Vector3f::Zero();
+    y = Vector3f::Zero();
     this->L = L;
 }
 
@@ -51,8 +54,7 @@ void cons::iter_cons() {
     Vector3f d_u = (1 / rho) * z;
     sol_unconstrained = check_feasibility(d_u);
     if (sol_unconstrained) {
-        // IF UNCONSTRAINED SOLUTION EXISTS, THEN IT IS OPTIMAL
-        // NO NEED TO COMPUTE THE OTHER
+
         float cost_unconstrained = evaluate_cost(d_u);
         if (cost_unconstrained < cost_best) {
             d_best = d_u;
@@ -172,6 +174,7 @@ void cons::update_cons(Vector3f _d_av) {
 }
 
 void cons::get_sol_results() {
+    /*
     if (d_av(0) > 100.0 || d_av(1) > 100.0 || d_av(2) > 100.0 ) {
         d_av = Vector3f(100.0, 100.0, 100.0);
         d = d_av;
@@ -179,6 +182,7 @@ void cons::get_sol_results() {
         d_av(idx) = 0.0;
         d = d_av;
     }
+    */
 
     duty_cycle_consensus = d_av(idx)/100.0;
     reference = K.transpose() * d + o;
