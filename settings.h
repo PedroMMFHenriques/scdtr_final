@@ -10,6 +10,8 @@
 #define LED_PIN 15
 #define LDR_PIN A0
 
+#define LED_POWER 1
+
 #define SERIAL_BAUD 115200
 
 #define ADC_RES 12

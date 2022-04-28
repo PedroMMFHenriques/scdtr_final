@@ -56,11 +56,13 @@ extern bool stream_l_enabled;
 extern bool stream_d_enabled;
 
 extern float measured_illuminance;
+extern float measured_prev;
+extern float measured_prev_prev;
 
 extern float duty_cycle;
+extern float prev_duty_cycle;
 
 extern float duty_cycle_backup;
-
 
 
 extern float energy;

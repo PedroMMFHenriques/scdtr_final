@@ -242,6 +242,8 @@ void loop() {
         }
         else fb_duty_cycle = 0;
 
+        prev_duty_cycle = duty_cycle;
+
         //sum the components of feedforward and feedback
         duty_cycle = ff_duty_cycle + fb_duty_cycle;
         if(!ff_control_enabled && !fb_control_enabled) duty_cycle = duty_cycle_backup;
@@ -250,7 +252,39 @@ void loop() {
         else if(duty_cycle < 0) duty_cycle = 0;
         analogWrite(LED_PIN, dc_to_DAC(duty_cycle/100));
 
+        /*
+            if(!t_stream) t_stream = micros();
+            if(streamL){
+            Serial.print("s l "); Serial.print("1");  Serial.print(" "); Serial.print(Ylux); Serial.print(" lx "); Serial.print((micros() - t_stream)/pow(10,3),0); Serial.println(" ms");
+            }
+            if(streamD){
+            Serial.print("s d "); Serial.print("1");  Serial.print(" "); Serial.print(duty_cycle); Serial.print(" % "); Serial.print((micros() - t_stream)/pow(10,3),0); Serial.println(" ms");
+            }
+        
+        
+            //fill circular buffer
+            if(cbuf.is_full()) cbuf.take();
+            cbuf.put(my_data{prev_dc, Ylux});
+        */
 
+        //performance metrics
+        energy += LED_POWER*prev_duty_cycle*TIMESTEP; 
+        visibility_error_sum += max(0, reference - measured_illuminance); 
+        
+        float flicker = 0;
+        if(n_samples == 1) measured_prev = measured_illuminance;
+        if(n_samples == 2){
+            measured_prev_prev = measured_prev;
+            measured_prev = measured_illuminance;
+        }
+        if(n_samples >= 3){
+            if((measured_illuminance - measured_prev)*(measured_prev - measured_prev_prev) < 0){
+                flicker = (abs(measured_illuminance - measured_prev) + abs(measured_prev - measured_prev_prev))/(2*TIMESTEP);
+            }
+            measured_prev_prev = measured_prev;
+            measured_prev = measured_illuminance;      
+        }
+        flicker_sum += flicker;
         break;
 
     default:

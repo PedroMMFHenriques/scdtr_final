@@ -44,9 +44,12 @@ bool stream_l_enabled = false;
 
 bool stream_d_enabled = false;
 
-float measured_illuminance;
+float measured_illuminance = 0;
+float measured_prev = 0;
+float measured_prev_prev = 0;
 
-float duty_cycle;
+float duty_cycle = 0;
+float prev_duty_cycle = 0;
 
 float duty_cycle_backup = 0.0;
 
