@@ -59,6 +59,10 @@ void setup() {
 }
 
 void loop() {
+    float Yadc_sum;
+    float adc_measurement;
+    float flicker;
+    
     //cooler message parser
     etl::vector<uint8_t, MSG_SIZE> msg;
     while(!msg_queue.empty()) {
@@ -118,19 +122,10 @@ void loop() {
             if (my_id == node_id[0]) {
                 reference_lower_bound_changed = true;
             }
-            
-            float g1 = 0.5, g2 = 0.5, g3 = 0.5; //DIVIDIR GANHOS POR 100???????? ou mudar DC_CAL_HIGH 0.9 para 90????
-            if (my_id == node_id[0]) {
-                g1 = 2;
-            } else if(my_id == node_id[1]) {
-                g2 = 2;
-            } else {
-                g3 = 2;
-            }
-
+    
             int idx = index_of(my_id, node_id, N_NODES);
-            Eigen::Vector3f K(g1, g2, g3);
-            node.init_cons(idx, 1.0, cost, K);
+            Eigen::Vector3f K(gain[0]/100.0, gain[1]/100.0, gain[2]/100.0);
+            node.init_cons(idx, external_illumination, cost, K);
 
             state = normal;
             Serial.printf("Initialization done!\n");
@@ -207,15 +202,15 @@ void loop() {
         break;
     
     case sampling:
-
         //measure illuminance
-        float Yadc_sum = 0;
+        Yadc_sum = 0;
         //mean digital filter
         for(int i = 0; i < SAMPLES_PER_MEASUREMENT; i++){ 
-            Yadc_sum += analogRead(ADC0_PIN);
+            Yadc_sum += analogRead(LDR_PIN);
         }
 
-        measured_illuminance = adc_to_lux(Yadc_sum/SAMPLES_PER_MEASUREMENT);
+        adc_measurement = Yadc_sum/SAMPLES_PER_MEASUREMENT;
+        measured_illuminance = adc_to_lux(adc_measurement);
         n_samples++;
 
         //turn on/off feedforward control
@@ -226,19 +221,16 @@ void loop() {
         if(fb_control_enabled){ 
             if(reference_changed){ 
                 reference_changed = false;
-        
-                float simLux = reference;
-                //if(reference/static_gain >= 1) simLux = static_gain; COMO LIMITAR O MAXIMO??? O CONSENSUS JÁ FAZ ISSO?
 
                 //calculate tau and readies the class
-                simu.dim_change(gain[index_of(my_id, node_id, N_NODES)], adc_to_volt(measured_illuminance, simLux, 0);
+                simu.dim_change(gain[index_of(my_id, node_id, N_NODES)], adc_to_volt(adc_measurement), reference, 0);
 
                 t_startSim = micros();
             }
 
             //having the tau, just needs to calculate voltage
             float fb_Rlux = volt_to_lux(simu.get_vt((micros() - t_startSim)/pow(10,6))); //new lux reference for the FB based on the simulator
-            fb_duty_cycle = cont.calc_pwm(fb_Rlux, measured_illuminance, anti_windup_enabled, ff_duty_cycle/100) * 100;
+            fb_duty_cycle = cont.calc_pwm(fb_Rlux, measured_illuminance, anti_windup_enabled, ff_duty_cycle);
         }
         else fb_duty_cycle = 0;
 
@@ -248,9 +240,9 @@ void loop() {
         duty_cycle = ff_duty_cycle + fb_duty_cycle;
         if(!ff_control_enabled && !fb_control_enabled) duty_cycle = duty_cycle_backup;
         
-        if(duty_cycle > 100) duty_cycle = 100;
+        if(duty_cycle > 1) duty_cycle = 1;
         else if(duty_cycle < 0) duty_cycle = 0;
-        analogWrite(LED_PIN, dc_to_DAC(duty_cycle/100));
+        analogWrite(LED_PIN, dc_to_DAC(duty_cycle));
 
         /*
             if(!t_stream) t_stream = micros();
@@ -271,7 +263,7 @@ void loop() {
         energy += LED_POWER*prev_duty_cycle*TIMESTEP; 
         visibility_error_sum += max(0, reference - measured_illuminance); 
         
-        float flicker = 0;
+        flicker = 0;
         if(n_samples == 1) measured_prev = measured_illuminance;
         if(n_samples == 2){
             measured_prev_prev = measured_prev;
@@ -285,6 +277,8 @@ void loop() {
             measured_prev = measured_illuminance;      
         }
         flicker_sum += flicker;
+
+        state = normal;
         break;
 
     default:

@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "protocol.h"
 #include "settings.h"
+#include "consensus.h"
 
 
 void msg_d(uint8_t sender_id, float val){
@@ -33,7 +34,6 @@ void msg_gl(uint8_t sender_id){
 }
 
 void msg_o(uint8_t sender_id, uint8_t val) {
-    //SUSSY BACKA
     if(occupancy != (val == 1)){
         occupancy = (val == 1);
 
@@ -166,7 +166,12 @@ void msg_U(uint8_t sender_id, float val) {
 }
 
 void msg_c(uint8_t sender_id, float val) {
-	cost = val;
+    if(cost != val){
+        cost = val;
+        node.new_cost(cost);
+        reference_lower_bound_changed = true;
+    }
+
     i2c_cmd_send(sender_id, R_CMD_c);
 }
 
@@ -175,7 +180,7 @@ void msg_R() {
 }
 
 
-//** REPLIES 😎😎😎🤡🤡💀
+//** REPLIES
 
 // PARTE I
 

@@ -27,7 +27,8 @@ class cons {
     cons(float rho = 1, float max_iter = 5);
     void init_cons(int idx, float o, float cost, Vector3f K);
     void iter_cons(); 
-    void new_ref(float L);
+    void new_ref(float LL);
+    void new_cost(float cc);
     void update_cons(Vector3f _d_av);
     void get_sol_results();
 };

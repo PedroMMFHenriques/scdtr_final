@@ -33,6 +33,10 @@ void cons::new_ref(float L) {
     this->L = L;
 }
 
+void cons::new_cost(float _cost){
+    c(idx) = _cost;
+}
+
 void cons::iter_cons() {
     // Serial.printf("inicio iter_cons: L: %f; d_av: %f %f %f \n", L, d_av(0), d_av(1), d_av(2));
     // Serial.printf("inicio iter_cons: y: %f %f %f \n", y(0), y(1), y(2));
@@ -168,7 +172,15 @@ void cons::update_cons(Vector3f _d_av) {
 }
 
 void cons::get_sol_results() {
-    duty_cycle_consensus = d_av(idx);
+    if (d_av(0) > 100.0 || d_av(1) > 100.0 || d_av(2) > 100.0 ) {
+        d_av = Vector3f(100.0, 100.0, 100.0);
+        d = d_av;
+    } else if (d_av(idx) < 0.0) {
+        d_av(idx) = 0.0;
+        d = d_av;
+    }
+
+    duty_cycle_consensus = d_av(idx)/100.0;
     reference = K.transpose() * d + o;
 }
 
