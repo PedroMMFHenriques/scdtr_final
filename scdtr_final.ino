@@ -17,6 +17,8 @@ struct repeating_timer timer;
 volatile uint32_t timer_time {0};
 volatile bool timer_fired {false};
 
+unsigned long consensus_iter_start_time;
+
 
 bool timer_ISR(struct repeating_timer *t) {
     if(!timer_fired) {
@@ -62,7 +64,6 @@ void loop() {
     float Yadc_sum;
     float adc_measurement;
     float flicker;
-    unsigned long consensus_iter_start_time;
     float fb_Rlux;
     
     //cooler message parser

@@ -55,7 +55,7 @@
 #define COST 1.0
 
 //consensus parameters
-#define MAX_ITER 50
+#define MAX_ITER 20
 #define RHO 0.07
 
 #define SAMPLES_PER_MEASUREMENT 20
