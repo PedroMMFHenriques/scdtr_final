@@ -23,10 +23,15 @@ float adc_to_lux (int adc){
 void reset_gvars(){
     iter_num = 0;
 
-    node_id[N_NODES] = {0};
+    node_id[0] = 0;
+    node_id[1] = 0;
+    node_id[2] = 0;
+
     node_count = 0;
 
-    gain[N_NODES] = {0};
+    gain[0] = 0;
+    gain[1] = 0;
+    gain[2] = 0;
     
     dc[0] = Eigen::Vector3f(0,0,0);
     dc[1] = Eigen::Vector3f(0,0,0);
@@ -96,4 +101,8 @@ void reset_gvars(){
 
     ff_duty_cycle = 0;
     fb_duty_cycle = 0;
+
+    printL_left = 0;
+    printD_left = 0;
+    buf_ptr = 0;
 }

@@ -97,3 +97,7 @@ extern sim simu;
 
 extern float ldr_m;
 extern float ldr_b;
+
+extern int printL_left;
+extern int printD_left;
+extern int buf_ptr;

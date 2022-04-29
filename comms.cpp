@@ -55,7 +55,6 @@ void recv_handler(int len) {
 }
 
 void req_handler() {
-    // please delete it!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1!!!111!!!!!1111!!!11!
     static int ctr = 765;
     char buff[7];
     sprintf(buff, "%06X", (ctr++) % 65535);

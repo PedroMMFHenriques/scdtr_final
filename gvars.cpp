@@ -82,8 +82,12 @@ unsigned long t_startSim = 0;
 float ff_duty_cycle = 0;
 float fb_duty_cycle = 0;
 
-pi cont(K_P, K_I, TIMESTEP); //E SE DEMORAR MAIS QUE 1 TIMESTEP??????
+pi cont(K_P, K_I, TIMESTEP); 
 sim simu{ADC_REF, LDR_R};
 
 float ldr_b;
 float ldr_m;
+
+int printL_left = 0;
+int printD_left = 0;
+int buf_ptr = 0;

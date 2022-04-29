@@ -9,6 +9,7 @@
 #include "protocol.h"
 #include "settings.h"
 #include "consensus.h"
+#include "circular_buffer.h"
 
 
 void msg_d(uint8_t sender_id, float val){
@@ -112,11 +113,15 @@ void msg_sd(uint8_t sender_id) {
 }
 
 void msg_Bl(uint8_t sender_id) {
-
+    Serial.printf("B l %d ", my_id);                                  
+    printL_left = CBUFFER_SIZE;  
+    i2c_cmd_send(sender_id, R_CMD_R);   
 }
 
 void msg_Bd(uint8_t sender_id) {
-
+    Serial.printf("B d %d ", my_id);                                  
+    printL_left = CBUFFER_SIZE;    
+    i2c_cmd_send(sender_id, R_CMD_R); 
 }
 
 void msg_ge(uint8_t sender_id) {

@@ -13,11 +13,20 @@
 #include "pi.h"
 #include "system.h"
 #include "protocol.h"
+#include "circular_buffer.h"
 
 struct repeating_timer timer;
 volatile uint32_t timer_time {0};
 volatile bool timer_fired {false};
 
+struct my_data{
+  float duty_cycle; float illuminance;
+  my_data(float dc = 0.0f, float lux = 0.0f):
+    duty_cycle {dc}, illuminance {lux} {};
+    inline void print_l() const {Serial.print(illuminance);}
+    inline void print_d() const {Serial.print(duty_cycle);}
+};
+circular_buffer<my_data, CBUFFER_SIZE> cbuf;
 
 bool timer_ISR(struct repeating_timer *t) {
     if(!timer_fired) {
@@ -71,8 +80,7 @@ void loop() {
     }
 
     switch (state) {
-    case discovery:
-        
+    case discovery:  
         Serial.printf("Discovering...\n");
         node_discovery();
         if (node_count == N_NODES) {
@@ -152,6 +160,26 @@ void loop() {
         if(timer_fired){
             timer_fired = false;
             state = sampling;
+        }
+
+        //print Buffer
+        if(printL_left){     
+            if(printL_left == CBUFFER_SIZE) buf_ptr = cbuf.get_tail();  
+            for(int j = 0; j < 50 && printL_left > 0; j++, buf_ptr++, printL_left--){
+                if(buf_ptr == CBUFFER_SIZE) buf_ptr = 0;
+                cbuf[buf_ptr].print_l();
+                if(printL_left != 1) Serial.print(",");
+            }
+            if(printL_left == 0) Serial.println();
+        }
+        else if(printD_left){  
+            if(printD_left == CBUFFER_SIZE) buf_ptr = cbuf.get_tail();    
+            for(int j = 0; j < 50 && printD_left > 0; j++, buf_ptr++, printD_left--){
+                if(buf_ptr == CBUFFER_SIZE) buf_ptr = 0;
+                cbuf[buf_ptr].print_d();
+                if(printD_left != 1) Serial.print(",");
+            }
+            if(printD_left == 0) Serial.println();
         }
 
         if(reset_enabled){
@@ -253,11 +281,11 @@ void loop() {
             i2c_cmd_float_send(BROADCAST, STREAM_D, duty_cycle);
         }   
         
-        /*
-            //fill circular buffer
-            if(cbuf.is_full()) cbuf.take();
-            cbuf.put(my_data{prev_dc, Ylux});
-        */
+
+        //fill circular buffer
+        if(cbuf.is_full()) cbuf.take();
+        cbuf.put(my_data{prev_duty_cycle, measured_illuminance});
+
 
         //performance metrics
         energy += LED_POWER*prev_duty_cycle*TIMESTEP; 
