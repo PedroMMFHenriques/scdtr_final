@@ -62,7 +62,7 @@ void loop() {
     float Yadc_sum;
     float adc_measurement;
     float flicker;
-    uint32_t consensus_iter_start_time;
+    unsigned long consensus_iter_start_time;
     float fb_Rlux;
     
     //cooler message parser
@@ -111,7 +111,7 @@ void loop() {
     case callibration_high:
         Serial.printf("Waiting high point acks...\n");
         delay(1);
-        if (cal_ack_count == N_NODES) {
+          if (cal_ack_count == N_NODES) {
             state = callibration_finish;
             calibrate_gains_finish();
             Serial.printf("Waiting all done...\n");
@@ -139,8 +139,9 @@ void loop() {
             if(!startup) cancel_repeating_timer(&timer);
             startup = false;
 
+            n_samples = 0;
             t_start = micros(); //elapsed timer
-            add_repeating_timer_ms(- TIMESTEP, timer_ISR, NULL, &timer);
+            add_repeating_timer_ms(-TIMESTEP, timer_ISR, NULL, &timer);
         }
         break;
 
@@ -189,18 +190,21 @@ void loop() {
         iter_num++;
         
         state = consensus_wait;
-        consensus_iter_start_time =  millis();  
+        consensus_iter_start_time = micros();  
         Serial.printf("Waiting consensus... (iter %d)\n", iter_num);   
         break;
 
     case consensus_wait:
-        if (cons_ack_count == N_NODES || millis() - consensus_iter_start_time > CONSENSUS_TIMEOUT) {
+        if (cons_ack_count == N_NODES || (micros() - consensus_iter_start_time) > CONSENSUS_TIMEOUT) {
             Eigen::Vector3f d_av = (dc[0] + dc[1] + dc[2])/3;
-            // Serial.printf("Received dc: \n");
-            // Serial.printf("dc_0: %f %f %f \n", dc[0](0), dc[0](1), dc[0](2));
-            // Serial.printf("dc_1: %f %f %f \n", dc[1](0), dc[1](1), dc[1](2));
-            // Serial.printf("dc_2: %f %f %f \n", dc[2](0), dc[2](1), dc[2](2));
-            // Serial.printf("d_av: %f %f %f \n", d_av(0), d_av(1), d_av(2));
+            Serial.printf("cons_ack_count: %d\n", cons_ack_count);
+            Serial.printf("start time: %d\n", consensus_iter_start_time);
+            Serial.printf("time elapsed: %d\n", (micros() - consensus_iter_start_time));
+            Serial.printf("Received dc: \n");
+            Serial.printf("dc_0: %f %f %f \n", dc[0](0), dc[0](1), dc[0](2));
+            Serial.printf("dc_1: %f %f %f \n", dc[1](0), dc[1](1), dc[1](2));
+            Serial.printf("dc_2: %f %f %f \n", dc[2](0), dc[2](1), dc[2](2));
+            Serial.printf("d_av: %f %f %f \n", d_av(0), d_av(1), d_av(2));
             node.update_cons(d_av);
 
             state = consensus_calc;
@@ -217,6 +221,7 @@ void loop() {
 
         adc_measurement = Yadc_sum/SAMPLES_PER_MEASUREMENT;
         measured_illuminance = adc_to_lux(adc_measurement);
+
         n_samples++;
 
         //turn on/off feedforward control
@@ -231,12 +236,14 @@ void loop() {
                 //calculate tau and readies the class
                 simu.dim_change(gain[index_of(my_id, node_id, N_NODES)], adc_to_volt(adc_measurement), reference, 0);
 
+                fb_Rlux = 0;
                 t_startSim = micros();
             }
 
             //having the tau, just needs to calculate voltage
             fb_Rlux = volt_to_lux(simu.get_vt((micros() - t_startSim)/pow(10,6))); //new lux reference for the FB based on the simulator
-            fb_duty_cycle = cont.calc_pwm(fb_Rlux, measured_illuminance, anti_windup_enabled, ff_duty_cycle);
+            //fb_duty_cycle = cont.calc_pwm(fb_Rlux, measured_illuminance, anti_windup_enabled, ff_duty_cycle);
+            fb_duty_cycle = cont.calc_pwm(reference, measured_illuminance, anti_windup_enabled, ff_duty_cycle);
         }
         else fb_duty_cycle = 0;
 
@@ -258,7 +265,6 @@ void loop() {
             if(streamD){
             Serial.print("s d "); Serial.print("1");  Serial.print(" "); Serial.print(duty_cycle); Serial.print(" % "); Serial.print((micros() - t_stream)/pow(10,3),0); Serial.println(" ms");
             }
-        
         
             //fill circular buffer
             if(cbuf.is_full()) cbuf.take();

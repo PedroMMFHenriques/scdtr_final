@@ -47,23 +47,18 @@
 
 //in ms
 #define TIMESTEP 10
-#define CONSENSUS_TIMEOUT 10
+#define CONSENSUS_TIMEOUT 10000
 
-#define UNOCCUPIED_REFERENCE 5.0
-#define OCCUPIED_REFERENCE 30.0
+#define UNOCCUPIED_REFERENCE 15.0
+#define OCCUPIED_REFERENCE 50.0
 
 #define COST 1.0
 
 //consensus parameters
-#define MAX_ITER 20
+#define MAX_ITER 50
 #define RHO 0.07
 
 #define SAMPLES_PER_MEASUREMENT 20
-
-
-
-
-
 
 
 
@@ -82,6 +77,6 @@
 // in us
 #define DEADTIME 2000
 
-#define K_P 0.012
+#define K_P 0.000012
 
-#define K_I 0.12
+#define K_I 0.012

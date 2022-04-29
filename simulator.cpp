@@ -20,7 +20,6 @@ void sim::dim_change(float _s_gain, float _vi, float _xf, float _ti){
   else increasing = false;
   
   tau = X_to_tau(xf, increasing);
-
 }
 
 //calculate voltage

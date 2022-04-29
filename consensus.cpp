@@ -30,9 +30,14 @@ void cons::init_cons(int _idx, float _o, float _cost, Vector3f _K) {
 }
 
 void cons::new_ref(float L) {
+    for(int i = 0; i < 3; i++) {
+        dc[i] = Vector3f::Zero();
+    }
     d = Vector3f::Zero();
     d_av = Vector3f::Zero();
     y = Vector3f::Zero();
+    my_d_best = Vector3f(-1, -1, -1);
+    my_cost_best = 1000000;
     this->L = L;
 }
 
@@ -41,8 +46,8 @@ void cons::new_cost(float _cost){
 }
 
 void cons::iter_cons() {
-    // Serial.printf("inicio iter_cons: L: %f; d_av: %f %f %f \n", L, d_av(0), d_av(1), d_av(2));
-    // Serial.printf("inicio iter_cons: y: %f %f %f \n", y(0), y(1), y(2));
+    Serial.printf("inicio iter_cons: L: %f; d_av: %f %f %f \n", L, d_av(0), d_av(1), d_av(2));
+    Serial.printf("inicio iter_cons: y: %f %f %f \n", y(0), y(1), y(2));
     // iteration initialization
     Vector3f d_best(-1, -1, -1);
     float cost_best = 1000000;
@@ -131,12 +136,29 @@ void cons::iter_cons() {
         }
     }
 
+    //only update solution if it is feasable
+    /*if(d_best(0) > 0 && d_best(1) > 0 && d_best(2) > 0){
+        my_d_best = d_best;
+        my_cost_best = cost_best;
+        d = my_d_best;
+    }*/
+    
+    if(d_best == Vector3f(-1, -1, -1)) Serial.printf("UNFEASABLE\n");
+
+    
+    if(d_best[0] > 100) d_best[0] = 100;
+    if(d_best[1] > 100) d_best[1] = 100;
+    if(d_best[2] > 100) d_best[2] = 100;
+    if(d_best[0] < 0) d_best[0] = 0;
+    if(d_best[1] < 0) d_best[1] = 0;
+    if(d_best[2] < 0) d_best[2] = 0;
+
     my_d_best = d_best;
     my_cost_best = cost_best;
     d = my_d_best;
 
-    // Serial.printf("final iter_cons: L: %f; d_best: %f %f %f \n", L, d_best(0), d_best(1), d_best(2));
-    // Serial.printf("final iter_cons: y: %f %f %f \n", y(0), y(1), y(2));
+    Serial.printf("final iter_cons: L: %f; d_best: %f %f %f \n", L, d_best(0), d_best(1), d_best(2));
+    Serial.printf("final iter_cons: y: %f %f %f \n", y(0), y(1), y(2));
 
     // broadcast SOLUTION
     float solution[3];
