@@ -37,8 +37,8 @@ void msg_o(uint8_t sender_id, uint8_t val) {
     if(occupancy != (val == 1)){
         occupancy = (val == 1);
 
-        if(occupancy) reference_lower_bound = OCCUPIED_REFERENCE;
-        else reference_lower_bound = UNOCCUPIED_REFERENCE;
+        if(occupancy) reference_lower_bound = occupied_reference;
+        else reference_lower_bound = unoccupied_reference;
         reference_lower_bound_changed = true;
     }
     
@@ -47,7 +47,6 @@ void msg_o(uint8_t sender_id, uint8_t val) {
 
 void msg_go(uint8_t sender_id) {
     uint8_t occ_byte = occupancy ? 1 : 0;
-    Serial.printf("msg go = %d\n", occ_byte);
     i2c_cmd_byte_send(sender_id, R_CMD_go, occ_byte);
 }
 
@@ -153,14 +152,20 @@ void msg_gc(uint8_t sender_id) {
 
 void msg_O(uint8_t sender_id, float val) {
 	occupied_reference = val;
-    if(occupancy) reference_lower_bound_changed = true;
-        
+    if(occupancy){
+        reference_lower_bound = occupied_reference;
+        reference_lower_bound_changed = true;
+    }
+
     i2c_cmd_send(sender_id, R_CMD_O);
 }
 
 void msg_U(uint8_t sender_id, float val) {
 	unoccupied_reference = val;
-    if(!occupancy) reference_lower_bound_changed = true;
+    if(!occupancy){
+        reference_lower_bound = unoccupied_reference;
+        reference_lower_bound_changed = true;
+    }
 
     i2c_cmd_send(sender_id, R_CMD_U);
 }
@@ -213,7 +218,6 @@ void r_msg_o(uint8_t sender_id) {
 }
 
 void r_msg_go(uint8_t sender_id, uint8_t val){
-    Serial.printf("r_msg go = %d\n", val);
     Serial.printf("o %d %d\n", index_of(sender_id, node_id, node_count), val);
 }
 

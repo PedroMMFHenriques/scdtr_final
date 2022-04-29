@@ -40,7 +40,7 @@ bool anti_windup_enabled = true;
 
 bool ff_control_enabled = true;
 
-bool fb_control_enabled = true;
+bool fb_control_enabled = false;
 
 bool stream_l_enabled = false;
 
