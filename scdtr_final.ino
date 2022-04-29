@@ -75,7 +75,6 @@ void loop() {
 
     switch (state) {
     case discovery:
-        
         Serial.printf("Discovering...\n");
         node_discovery();
         if (node_count == N_NODES) {

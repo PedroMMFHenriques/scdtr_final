@@ -198,7 +198,8 @@ void msg_handler_parser(uint8_t *msg, int len) {
         msg_stream_l(msg[2], val);
         break;
     case STREAM_D:
-        
+        val = byte_array_to_float(&msg[5]);
+        msg_stream_d(msg[2], val);
         break;
     case CMD_d:
         val = byte_array_to_float(&msg[5]);
