@@ -30,9 +30,14 @@ void cons::init_cons(int _idx, float _o, float _cost, Vector3f _K) {
 }
 
 void cons::new_ref(float L) {
+    for(int i = 0; i < 3; i++) {
+        dc[i] = Vector3f::Zero();
+    }
     d = Vector3f::Zero();
     d_av = Vector3f::Zero();
     y = Vector3f::Zero();
+    my_d_best = Vector3f(-1, -1, -1);
+    my_cost_best = 1000000;
     this->L = L;
 }
 

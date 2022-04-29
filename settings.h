@@ -34,7 +34,7 @@
 #define LDR_B_3D 6.25
 #define LDR_M_3D -1.00
 
-#define LDR_B_61 6.85
+#define LDR_B_61 6.80
 #define LDR_M_61 -1.00
 
 #define DC_CAL_HIGH 0.9
@@ -49,7 +49,7 @@
 #define TIMESTEP 10
 #define CONSENSUS_TIMEOUT 10
 
-#define UNOCCUPIED_REFERENCE 5.0
+#define UNOCCUPIED_REFERENCE 10.0
 #define OCCUPIED_REFERENCE 30.0
 
 #define COST 1.0
@@ -82,6 +82,6 @@
 // in us
 #define DEADTIME 2000
 
-#define K_P 0.012
+#define K_P 0.0000012
 
-#define K_I 0.12
+#define K_I 0.0012
