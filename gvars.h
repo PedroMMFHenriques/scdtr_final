@@ -27,6 +27,8 @@ extern volatile bool calibrate_all_done;
 
 extern volatile int cons_ack_count;
 
+extern volatile int r_ack_count;
+
 extern cons node;
 
 extern states state;
@@ -54,6 +56,8 @@ extern bool fb_control_enabled;
 extern bool stream_l_enabled;
 
 extern bool stream_d_enabled;
+
+extern bool reset_enabled;
 
 extern float measured_illuminance;
 extern float measured_prev;
@@ -85,7 +89,6 @@ extern float cost;
 
 extern unsigned long t_start;
 extern unsigned long t_startSim;
-extern bool startup;
 
 extern float ff_duty_cycle;
 extern float fb_duty_cycle;

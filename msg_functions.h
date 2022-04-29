@@ -134,3 +134,9 @@ void r_msg_U(uint8_t sender_id);
 void r_msg_c(uint8_t sender_id);
 
 void r_msg_R();
+
+//Streaming Messages
+
+void msg_stream_l(uint8_t sender_id, float val);
+
+void msg_stream_d(uint8_t sender_id, float val);

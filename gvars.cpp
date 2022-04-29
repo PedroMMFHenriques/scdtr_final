@@ -18,6 +18,8 @@ volatile bool calibrate_all_done = false;
 
 volatile int cons_ack_count = 0;
 
+volatile int r_ack_count = 0;
+
 cons node(RHO, MAX_ITER);
 
 states state = discovery;
@@ -43,6 +45,8 @@ bool fb_control_enabled = false;
 bool stream_l_enabled = false;
 
 bool stream_d_enabled = false;
+
+bool reset_enabled = false;
 
 float measured_illuminance = 0;
 float measured_prev = 0;
@@ -74,7 +78,6 @@ float cost = COST;
 
 unsigned long t_start = 0;
 unsigned long t_startSim = 0;
-bool startup = true;
 
 float ff_duty_cycle = 0;
 float fb_duty_cycle = 0;
