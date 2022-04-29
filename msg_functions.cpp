@@ -176,7 +176,8 @@ void msg_c(uint8_t sender_id, float val) {
 }
 
 void msg_R() {
-    
+    reset_enabled = true;
+    i2c_cmd_send(BROADCAST, R_CMD_R);
 }
 
 
@@ -323,4 +324,13 @@ void r_msg_c(uint8_t sender_id) {
 void r_msg_R() {
     Serial.printf("ack");
     Serial.printf(" R\n");
+    r_ack_count++;
+}
+
+void msg_stream_l(uint8_t sender_id, float val){
+    Serial.printf("s l %d %f lx %lu ms", sender_id, val, millis());
+}
+
+void msg_stream_d(uint8_t sender_id, float val){
+    Serial.printf("s d %d %f %% %lu ms", sender_id, val*100, millis());
 }

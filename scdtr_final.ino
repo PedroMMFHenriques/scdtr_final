@@ -12,6 +12,7 @@
 #include "simulator.h"
 #include "pi.h"
 #include "system.h"
+#include "protocol.h"
 
 struct repeating_timer timer;
 volatile uint32_t timer_time {0};
@@ -39,7 +40,6 @@ void setup() {
 
     initI2C(my_id);
 
-    //meter numa função????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????'
     if (my_id == 0x2D) {
         ldr_b = LDR_B_2D;
         ldr_m = LDR_M_2D;
@@ -72,6 +72,7 @@ void loop() {
 
     switch (state) {
     case discovery:
+        
         Serial.printf("Discovering...\n");
         node_discovery();
         if (node_count == N_NODES) {
@@ -134,9 +135,6 @@ void loop() {
             Serial.printf("External Ilumination: %f\n", external_illumination);
             Serial.printf("Gains: %f %f %f\n\n\n", gain[0], gain[1], gain[2]);
 
-            if(!startup) cancel_repeating_timer(&timer);
-            startup = false;
-
             t_start = micros(); //elapsed timer
             add_repeating_timer_ms(- TIMESTEP, timer_ISR, NULL, &timer);
         }
@@ -146,10 +144,6 @@ void loop() {
     case normal:
         cli();
 
-        // Serial.printf("External Ilumination: %f\n", external_illumination);
-        // Serial.printf("Gains: %f %f %f\n\n\n", gain[0], gain[1], gain[2]);
-        // delay(10000);
-
         if(reference_lower_bound_changed){
             reference_lower_bound_changed = false;
             start_consensus();
@@ -158,6 +152,17 @@ void loop() {
         if(timer_fired){
             timer_fired = false;
             state = sampling;
+        }
+
+        if(reset_enabled){
+            if(r_ack_count == N_NODES){
+                while(!msg_queue.empty()) {
+                    msg_queue.pop(msg);
+                }
+                cancel_repeating_timer(&timer);
+                reset_gvars();
+                state = discovery;
+            } 
         }
 
         break;
@@ -190,11 +195,7 @@ void loop() {
     case consensus_wait:
         if (cons_ack_count == N_NODES) {
             Eigen::Vector3f d_av = (dc[0] + dc[1] + dc[2])/3;
-            // Serial.printf("Received dc: \n");
-            // Serial.printf("dc_0: %f %f %f \n", dc[0](0), dc[0](1), dc[0](2));
-            // Serial.printf("dc_1: %f %f %f \n", dc[1](0), dc[1](1), dc[1](2));
-            // Serial.printf("dc_2: %f %f %f \n", dc[2](0), dc[2](1), dc[2](2));
-            // Serial.printf("d_av: %f %f %f \n", d_av(0), d_av(1), d_av(2));
+
             node.update_cons(d_av);
 
             state = consensus_calc;
@@ -244,16 +245,15 @@ void loop() {
         else if(duty_cycle < 0) duty_cycle = 0;
         analogWrite(LED_PIN, dc_to_DAC(duty_cycle));
 
+
+        if(stream_l_enabled){
+            i2c_cmd_float_send(BROADCAST, STREAM_L, measured_illuminance);
+        }
+        if(stream_d_enabled){
+            i2c_cmd_float_send(BROADCAST, STREAM_D, duty_cycle);
+        }   
+        
         /*
-            if(!t_stream) t_stream = micros();
-            if(streamL){
-            Serial.print("s l "); Serial.print("1");  Serial.print(" "); Serial.print(Ylux); Serial.print(" lx "); Serial.print((micros() - t_stream)/pow(10,3),0); Serial.println(" ms");
-            }
-            if(streamD){
-            Serial.print("s d "); Serial.print("1");  Serial.print(" "); Serial.print(duty_cycle); Serial.print(" % "); Serial.print((micros() - t_stream)/pow(10,3),0); Serial.println(" ms");
-            }
-        
-        
             //fill circular buffer
             if(cbuf.is_full()) cbuf.take();
             cbuf.put(my_data{prev_dc, Ylux});

@@ -14,6 +14,10 @@
 #define CONSENSUS_SOLUTION 0x78
 
 
+#define STREAM_L 0x79
+#define STREAM_D 0x7A
+
+
 // PART I CMDS //
 #define CMD_d  0x25
 #define CMD_gd 0x26
